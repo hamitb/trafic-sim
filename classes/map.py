@@ -14,4 +14,9 @@ class Map(object):
             the edge in opposite direction is also deleted.'''
 
     def getShortestPath(self,id1,id2):
+        '''The list of edges in the shortest path from id1 and id2 is
+            returned as a list of tuples. (You can use Floyd-Warshall
+            algorithm to calculate all shortest paths when this is
+            called for the first time, then use cached value as long as
+            Map is not changed)'''
         
