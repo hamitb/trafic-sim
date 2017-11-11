@@ -12,3 +12,6 @@ class Map(object):
     def deleteRoad(self, id1, id2, bidir = True):
         '''delete the edge between id1 and id2. If bidir is True,
             the edge in opposite direction is also deleted.'''
+
+    def getShortestPath(self,id1,id2):
+        
