@@ -19,4 +19,9 @@ class Map(object):
             algorithm to calculate all shortest paths when this is
             called for the first time, then use cached value as long as
             Map is not changed)'''
-        
+    def saveMap(self, name):
+        '''Save map with given name from database'''
+    def deleteMap(self, name):
+        '''Delete map with given name from database'''
+    def loadMap(self, name):
+        '''Load map stored in database, replace current map'''
