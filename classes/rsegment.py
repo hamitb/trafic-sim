@@ -6,7 +6,7 @@ class Rsegment(object):
         in the Map
         '''
     
-    def insertVehicle(vehicle):
+    def insert_vehicle(vehicle):
         '''
         insert vehicle. You are free in how you present a vehicle,
         you can implement a class for it or represent as a
@@ -16,18 +16,18 @@ class Rsegment(object):
         position)
         '''
 
-    def getInfo():
+    def get_info():
         '''
         return length, number of lanes and nodes it connects in a
         tuple.
         '''
 
-    def getNVehicles():
+    def get_vehicles_count():
         '''
         return number of vehicles in the segment
         '''
 
-    def getCapacity():
+    def get_capacity():
         '''
         return capacity of the vehicle
         '''
@@ -37,12 +37,12 @@ class Rsegment(object):
         check if capacity is reached (getNVehicles()>=getCapacity())
         '''
        
-    def waitCapacity():
+    def wait_capacity():
         '''
         wait for a new opening for capacity (in phase 2)
         '''
 
-    def getStats():
+    def get_stats():
         '''
         return statistics about the segment, max vehicles, average
         speed (for completed vehicles), current number of

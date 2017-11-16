@@ -3,26 +3,26 @@ class Simulation(object):
         '''
         Creates an empty simulation
         '''
-    def setMap(self, map):
+    def set_map(self, map):
         '''
         set Map object as the map for the simulation
         '''
-    def addGenerator(self, sourcelist, targetlist, period, number):
+    def add_generator(self, sourcelist, targetlist, period, number):
         ''' 
         Add a traffic generator. Generator generates a vehicle
         once in the given period. After generating number
         vehicles it stops generating
         '''
-    def getGenerators(self):
+    def get_generators(self):
         '''
         get a list of generators and their parameters 
         '''
-    def delGenerator(self, num):
+    def del_generator(self, num):
         ''' 
         delete the generator in the given order of
         insertion (getGenerators() list order)
         '''
-    def startSimulation(self, tickperiod = 0)
+    def start_simulation(self, tickperiod = 0)
         '''
         Start the simulation with each tick of clock lasts
         tickperiod milliseconds. A thread sends tick() signal to
@@ -46,7 +46,7 @@ class Simulation(object):
         Wait for the end of simulation. If manual tick it returns
         if simulation is over.
         '''
-    def getStats(self):
+    def get_stats(self):
         '''
         Get simulation statistics. Total number of vehicles,
         number of vehicles completed, number of vehicles
