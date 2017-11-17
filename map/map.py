@@ -14,7 +14,10 @@ class Map(object):
         create a vertice at (x,y) with given id
         '''
         new_node = Node(id, x, y)
-        nodes[i] = new_node
+        
+        self.nodes[id] = new_node
+        self.children[id] = dict()
+        self.parents[id] = dict()
 
     def delete_node(self, id):
         ''' 
@@ -41,12 +44,12 @@ class Map(object):
         each edge and if bidir is True another edge in opposite
         direction is also created. 
         '''
-        start_node = nodes[id1]
-        end_node = nodes[id2]
+        start_node = self.nodes[id1]
+        end_node = self.nodes[id2]
         
         new_road = Edge(start_node, end_node, nlanes)
 
-        self.childs[id1][id2] = new_road
+        self.children[id1][id2] = new_road
         self.parents[id2][id1] = new_road
 
         if bidir:
