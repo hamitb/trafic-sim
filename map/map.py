@@ -23,15 +23,15 @@ class Map(object):
         ''' 
         delete the vertice with given id. All edges connecting the vertice are also deleted
         '''
-        if id not in nodes:
+        if id not in self.nodes:
             return
         # Unlink children:
         for child in self.children[id]:
-            del self.parent[child][id]
+            del self.parents[child][id]
 
         # Unlink parents:
         for parent in self.parents[id]:
-            del self.child[parent][id]
+            del self.children[parent][id]
         
         del self.children[id]
         del self.parents[id]
@@ -67,7 +67,7 @@ class Map(object):
         if bidir:
             self.delete_road(id2, id1)
 
-    def get_shortest_path(self,id1,id2):
+    def get_shortest_path(self,id1,id2,path=[]):
         ''' 
         The list of edges in the shortest path from id1 and id2 is
         returned as a list of tuples. (You can use Floyd-Warshall
@@ -75,6 +75,32 @@ class Map(object):
         called for the first time, then use cached value as long as
         Map is not changed) 
         '''
+        
+
+        if id1==id2:
+            return path
+        if id1 not in self.nodes:
+            return None
+        shortest_path =None
+        
+
+        for child in self.children[id1]:
+            path= path + [ self.children[id1][child] ] 
+            if child not in path:
+                new_path=self.get_shortest_path(child,id2,path)
+                if new_path !=None :
+                    len_newpath=0
+                    for edge in new_path:
+                        len_newpath=len_newpath+edge.length()
+                    if shortest_path!=None:
+                        len_shortest=0
+                        for edge2 in new_path:
+                            len_shortest=len_shortest+edge2.length()
+                        if len_newpath<len_shortest :
+                            shortest_path=new_path
+        return shortest_path
+
+
     def save_map(self, name):
         '''
         Save map with given name from database
