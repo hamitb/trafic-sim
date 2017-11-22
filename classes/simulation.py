@@ -3,7 +3,7 @@ class Simulation(object):
         '''
         Creates an empty simulation
         '''
-    def set_map(self, map):
+    def set_map(self, map_object):
         '''
         set Map object as the map for the simulation
         '''
@@ -22,7 +22,7 @@ class Simulation(object):
         delete the generator in the given order of
         insertion (getGenerators() list order)
         '''
-    def start_simulation(self, tickperiod = 0)
+    def start_simulation(self, tickperiod = 0):
         '''
         Start the simulation with each tick of clock lasts
         tickperiod milliseconds. A thread sends tick() signal to
