@@ -1,7 +1,7 @@
 from peewee import *
 from datetime import datetime
 
-db = SqliteDatabase("map.db")
+db = SqliteDatabase("map.db", pragmas=(('foreign_keys', 'on'),))
 
 class BaseModel(Model):
     class Meta:
@@ -15,19 +15,28 @@ class MapModel(BaseModel):
         order_by = ('created_at',)
 
 class NodeModel(BaseModel):
-    node_id = CharField(unique=True)
-    map_name = ForeignKeyField(MapModel, related_name="nodes", to_field="name")
+    node_id = CharField()
+    map_name = ForeignKeyField(MapModel, related_name="nodes", to_field="name", on_delete="CASCADE")
     x = FloatField()
     y = FloatField()
+    
+    class Meta:
+        indexes = (
+            (('map_name', 'node_id'), True),
+        )   
 
 class EdgeModel(BaseModel):
-    start_node = ForeignKeyField(NodeModel, related_name="routes_going", to_field="node_id")
-    end_node = ForeignKeyField(NodeModel, related_name="routes_coming", to_field="node_id")
-    map_name = ForeignKeyField(MapModel, related_name="edges", to_field="name")
+    start_node = CharField()
+    end_node = CharField()
+    map_name = CharField()
     lanes_count = IntegerField()
     length = FloatField()
 
     class Meta:
-        indexes = (
-            (('start_node', 'end_node'), True),
-        )
+        constraints = [SQL('FOREIGN KEY(map_name, start_node) '
+                           'REFERENCES nodemodel(map_name_id, node_id) '
+                           'ON DELETE CASCADE'),
+                       SQL('FOREIGN KEY(map_name, end_node) '
+                           'REFERENCES nodemodel(map_name_id, node_id) '
+                           'ON DELETE CASCADE'),
+                      ]

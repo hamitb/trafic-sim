@@ -13,6 +13,7 @@ class Edge(object):
         self.end_node = end_node
         self.lanes_count = lanes_count
         self.length = self.get_length()
+
     def get_length(self):
         '''
         Return euclidian length of the edge
@@ -32,6 +33,7 @@ class Map(object):
         self.children = dict()
         self.parents = dict()
         self.name = ''
+        
     def add_node(self, node_id, x, y):
         '''
         create a vertice at (x,y) with given id
@@ -129,7 +131,7 @@ class Map(object):
         raw_edges = []
 
         for start_node in self.children:
-            for end_node, edge_between in self.children[start_node].items():
+            for _, edge_between in self.children[start_node].items():
                 raw_edges.append({
                     'start_node': edge_between.start_node.node_id,
                     'end_node': edge_between.end_node.node_id,
@@ -154,11 +156,23 @@ class Map(object):
             NodeModel.insert_many(raw_nodes).execute()
             EdgeModel.insert_many(raw_edges).execute()
 
-    def delete_map(self, name):
+    def delete_map(self):
         '''
         Delete map with given name from database
         '''
+        MapModel.delete().where(MapModel.name == self.name).execute()
+        
     def load_map(self, name):
         '''
         Load map stored in database, replace current map
         '''
+        nodes = NodeModel.select().where(NodeModel.map_name == name).dicts()
+        edges = EdgeModel.select().where(EdgeModel.map_name == name).dicts()
+
+        for node in nodes:
+            node_id, x_pos, y_pos = node['node_id'], node['x'], node['y']
+            self.add_node(node_id, x_pos, y_pos)
+        
+        for edge in edges:
+            start_node, end_node, lanes_count = edge['start_node'], edge['end_node'], edge['lanes_count']
+            self.add_road(start_node, end_node, lanes_count)
