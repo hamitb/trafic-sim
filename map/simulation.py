@@ -1,10 +1,12 @@
 import threading
 import time
 import secrets
-
+from map import *
+from rsegment import *
+ 
 class Generator(object):
-    def __init__(self, map, period, number, source_list, target_list):
-        self.map = map
+    def __init__(self, _map, period, number, source_list, target_list):
+        self.map = _map
         self.period = period
         self.number = number
         self.created_vehicle_count = 0
@@ -44,9 +46,19 @@ class Generator(object):
         
         print("generated all")
         return
+
+    def describe(self):
+        return {
+                'period': self.period, 
+                'number': self.number, 
+                'sources': self.source_list, 
+                'targets': self.target_list,
+               }
             
     def insert_new_vehicle(self):
         start_node, end_node = self.get_start_end_nodes()
+        path = Map().get_shortest_path(1, 2)
+        vhcl = Vehicle
         print("New car created at {}, {}".format(start_node, end_node))
         self.created_vehicle_count += 1
 
@@ -64,21 +76,29 @@ class Simulation(object):
         set Map object as the map for the simulation
         '''
         self.map = map_object
-    def add_generator(self, sourcelist, targetlist, period, number):
+    def add_generator(self, source_list, target_list, period, number):
         ''' 
         Add a traffic generator. Generator generates a vehicle
         once in the given period. After generating number
         vehicles it stops generating
         '''
+        new_generator = Generator(self.map, period, number, source_list, target_list)
+        self.generators.append(new_generator)
+        
     def get_generators(self):
         '''
         get a list of generators and their parameters 
         '''
+        gens = [gen.describe() for gen in self.generators]
+        return gens
+
     def del_generator(self, num):
         ''' 
         delete the generator in the given order of
         insertion (getGenerators() list order)
         '''
+        for i in range(num):
+            del self.generators[0]
     def start_simulation(self, tickperiod = 0):
         '''
         Start the simulation with each tick of clock lasts
@@ -97,7 +117,7 @@ class Simulation(object):
             self.tick()         
 
     def _simulation_thread(self, tickperiod):
-        while self.sim_on.wait(tickperiod*1e-3 + 0.5):
+        while self.sim_on.wait():
             time.sleep(tickperiod * 1e-3)
             self.tick() 
         print("Simulation terminated")
@@ -109,7 +129,9 @@ class Simulation(object):
         simulation component.
         '''
         print("Tick!")
-        print("Generators informed values updated")
+        for gen in self.generators:
+            gen.get_tick()
+        print("All generators informed")
             
     def terminate(self):
         '''
@@ -140,22 +162,23 @@ class Simulation(object):
 # time.sleep(5)
 # s.terminate()
 
-g = Generator(None, 2, 3, [1,2,3], [3,4,5])
-g.gen_tick()
-time.sleep(0.5)
-g.gen_tick()
-time.sleep(0.5)
-g.gen_tick()
-time.sleep(0.5)
-g.gen_tick()
-time.sleep(0.5)
-g.gen_tick()
-time.sleep(0.5)
-g.gen_tick()
-time.sleep(0.5)
-g.gen_tick()
-time.sleep(0.5)
-g.gen_tick()
-time.sleep(0.5)
-g.gen_tick()
-time.sleep(0.5)
+# g = Generator(None, 2, 3, [1,2,3], [3,4,5])
+# g.gen_tick()
+# time.sleep(0.5)
+# g.gen_tick()
+# time.sleep(0.5)
+# g.gen_tick()
+# time.sleep(0.5)
+# g.gen_tick()
+# time.sleep(0.5)
+# g.gen_tick()
+# time.sleep(0.5)
+# g.gen_tick()
+# time.sleep(0.5)
+# g.gen_tick()
+# time.sleep(0.5)
+# g.gen_tick()
+# time.sleep(0.5)
+# g.gen_tick()
+# time.sleep(0.5)
+

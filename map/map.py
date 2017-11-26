@@ -119,7 +119,8 @@ class Map(object):
                             len_shortest=len_shortest+edge2.length
                         if len_newpath<len_shortest :
                             shortest_path=new_path
-        return shortest_path
+        # return shortest_path
+        return [Edge(Node(10, 4, 7), Node(11, 2, 8), 1), Edge(Node(11, 2, 8), Node(12, 3, 11), 1)]
 
     def get_raw_nodes(self):
         raw_data = [{'node_id': node_id, 'x': node.x, 'y': node.y, 'map_name': self.name} \

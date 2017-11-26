@@ -9,4 +9,4 @@ a_map.add_road(1, 2, 2)
 a_map.add_road(3, 1, 1)
 a_map.add_road(2, 3, 1, bidir=True)
 
-new_map = Map()
+print(a_map.get_shortest_path(1, 3))
