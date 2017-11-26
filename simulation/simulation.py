@@ -7,41 +7,48 @@ class Generator(object):
         self.map = map
         self.period = period
         self.number = number
-        self.time_passed = 0
+        self.created_vehicle_count = 0
+        self.clock = 0
         self.source_list = source_list
         self.target_list = target_list
         self.gen_on = threading.Event()
         self.tick_on = threading.Event()
-        self.gen_thread = None
         self.clock_thread = threading.Thread(target=self.set_clock)
         self.gen_thread = threading.Thread(target=self.generate)
+
+        self.clock_thread.start()
+        self.gen_thread.start()
     
     def get_start_end_nodes(self):
         start_node = secrets.choice(self.source_list)
         end_node = secrets.choice(self.target_list)
 
         return start_node, end_node
+
+    def gen_tick(self):
+        self.tick_on.set()
     
     def set_clock(self):
         while self.tick_on.wait():
-            self.time_passed += 1
+            print("clock: {}".format(self.clock))
+            self.clock += 1
             self.tick_on.clear()
-            if self.time_passed % self.period == 0:
+            if self.clock % self.period == 0:
                 self.gen_on.set()
         
-        self.clock_thread.join()
-    
     def generate(self):
         for i in range(self.number):
             if self.gen_on.wait():
-                self.create_new_car()
+                self.insert_new_vehicle()
                 self.gen_on.clear()
         
-        self.gen_thread.join()
+        print("generated all")
+        return
             
-    def inser_new_vehicle(self):
+    def insert_new_vehicle(self):
         start_node, end_node = self.get_start_end_nodes()
         print("New car created at {}, {}".format(start_node, end_node))
+        self.created_vehicle_count += 1
 
 class Simulation(object):
     def __init__(self):
@@ -109,8 +116,6 @@ class Simulation(object):
         End the simulation.
         '''
         self.sim_on.clear()
-        if self.sim_thread:
-            self.sim_thread.join()
             
     def wait(self):
         '''
@@ -127,32 +132,30 @@ class Simulation(object):
         complete in phase 1.
         '''
 
-s = Simulation()
-s.start_simulation(0)
+# s = Simulation()
+# s.start_simulation(0)
 
-print("Something else happens here")
+# print("Something else happens here")
 
-time.sleep(5)
-s.terminate()
-# def tick(event):
-#     """
-#     wait for two seconds, then make 'event' fire
-#     """
-#     print("tick signal send, waiting 2 seconds!")
-#     time.sleep(2)
-#     event.set()
+# time.sleep(5)
+# s.terminate()
 
-# def progress(event):
-#     while event.wait(timeout=None):
-#         print("Tick!!")
-#         event.clear()
-
-# stop_event = threading.Event()
-# t1 = threading.Thread(target=tick, args=[stop_event])
-# t2 = threading.Thread(target=progress, args=[stop_event])
-
-# while True:
-#     t1.start()
-#     t1.join()
-#     t2.start()
-#     t2.join()
+g = Generator(None, 2, 3, [1,2,3], [3,4,5])
+g.gen_tick()
+time.sleep(0.5)
+g.gen_tick()
+time.sleep(0.5)
+g.gen_tick()
+time.sleep(0.5)
+g.gen_tick()
+time.sleep(0.5)
+g.gen_tick()
+time.sleep(0.5)
+g.gen_tick()
+time.sleep(0.5)
+g.gen_tick()
+time.sleep(0.5)
+g.gen_tick()
+time.sleep(0.5)
+g.gen_tick()
+time.sleep(0.5)
