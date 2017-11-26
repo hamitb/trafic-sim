@@ -1,5 +1,48 @@
 import threading
 import time
+import secrets
+
+class Generator(object):
+    def __init__(self, map, period, number, source_list, target_list):
+        self.map = map
+        self.period = period
+        self.number = number
+        self.time_passed = 0
+        self.source_list = source_list
+        self.target_list = target_list
+        self.gen_on = threading.Event()
+        self.tick_on = threading.Event()
+        self.gen_thread = None
+        self.clock_thread = threading.Thread(target=self.set_clock)
+        self.gen_thread = threading.Thread(target=self.generate)
+    
+    def get_start_end_nodes(self):
+        start_node = secrets.choice(self.source_list)
+        end_node = secrets.choice(self.target_list)
+
+        return start_node, end_node
+    
+    def set_clock(self):
+        while self.tick_on.wait():
+            self.time_passed += 1
+            self.tick_on.clear()
+            if self.time_passed % self.period == 0:
+                self.gen_on.set()
+        
+        self.clock_thread.join()
+    
+    def generate(self):
+        for i in range(self.number):
+            if self.gen_on.wait():
+                self.create_new_car()
+                self.gen_on.clear()
+        
+        self.gen_thread.join()
+            
+    def inser_new_vehicle(self):
+        start_node, end_node = self.get_start_end_nodes()
+        print("New car created at {}, {}".format(start_node, end_node))
+
 class Simulation(object):
     def __init__(self):
         '''
@@ -8,6 +51,7 @@ class Simulation(object):
         self.map = None
         self.sim_on = threading.Event()
         self.sim_thread = None
+        self.generators = []
     def set_map(self, map_object):
         '''
         set Map object as the map for the simulation
@@ -37,24 +81,27 @@ class Simulation(object):
         explicit. The program/user calls Simulation.tick()
         that advances simulation clock explicitly.
         '''
-        self.sim_on.set()
-        print("Simulation Started !")
-        self.sim_thread = threading.Thread(target=self.simulation_thread, args=[tickperiod])
-        self.sim_thread.start()
-        print("Threads are started")
+        if tickperiod:
+            self.sim_on.set()
+            print("Simulation Started !")
+            self.sim_thread = threading.Thread(target=self._simulation_thread, args=[tickperiod])
+            self.sim_thread.start()
+        else:
+            self.tick()         
 
-    def simulation_thread(self, tickperiod):
+    def _simulation_thread(self, tickperiod):
         while self.sim_on.wait(tickperiod*1e-3 + 0.5):
             time.sleep(tickperiod * 1e-3)
-            print("Tick!")
             self.tick() 
-        print("Termination")
+        print("Simulation terminated")
+
     def tick(self):
         '''
         Explicit advance of simulation. tick() signal is
         generated (methods are called) for each generator and
         simulation component.
         '''
+        print("Tick!")
         print("Generators informed values updated")
             
     def terminate(self):
@@ -62,7 +109,9 @@ class Simulation(object):
         End the simulation.
         '''
         self.sim_on.clear()
-        self.sim_thread.join()
+        if self.sim_thread:
+            self.sim_thread.join()
+            
     def wait(self):
         '''
         Wait for the end of simulation. If manual tick it returns
@@ -79,7 +128,7 @@ class Simulation(object):
         '''
 
 s = Simulation()
-s.start_simulation(2000)
+s.start_simulation(0)
 
 print("Something else happens here")
 
