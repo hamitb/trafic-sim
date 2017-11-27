@@ -17,7 +17,9 @@ class Vehicle(object):
         # self.speed = fcrowd(self.current_segment.get_vehicles_count(), self.current_segment.nlanes, self.current_segment.length)*60 
         self.x = self.current_segment.edge.start_node.x
         self.y = self.current_segment.edge.start_node.y
-        self.completed_length=0
+        self.completed_segment_length=0
+        self.cur_completed_length=0
+        self.total_path_length = sum([edge.length for edge in self.path])
         self.finish_cur_segment = False
         self.finish_path = False
         self.below_zero_limit = 1e-6
@@ -30,27 +32,29 @@ class Vehicle(object):
             self.current_segment = self.path[self.current_segment_index]
             self.current_segment.insert_vehicle(self)
             self.finish_cur_segment = False
-            completed_length = 0
+            completed_segment_length = 0
             for segment in self.path[:self.current_segment_index]:
-                completed_length += segment.edge.length
+                completed_segment_length += segment.edge.length
         else:
             self.finish_path = True
-            completed_length = 0
+            completed_segment_length = 0
             for segment in self.path[:self.current_segment_index]:
-                completed_length += segment.edge.length
+                completed_segment_length += segment.edge.length
         
     def move(self):
         if not self.finish_path:
             move_vector = self.get_vector(self.speed)
-
             self.x += move_vector[0]
             self.y += move_vector[1]
-
             self.bound_position()
-
-            print("Vehicle moved in segment {}/{}, destination: {}, {} current position: ({}, {})".format \
+            
+            len_to_seg_start = ((self.y - self.current_segment.edge.start_node.y)**2 + \
+                                      (self.x - self.current_segment.edge.start_node.x)**2)**0.5
+            self.cur_completed_length = self.completed_segment_length + len_to_seg_start
+            print("Vehicle moved in segment {}/{}, destination: {}, {} completed: {}, currentpos: {},{} ".format \
                     (self.current_segment_index+1,self.segment_count,\
-                     self.current_segment.edge.end_node.x, self.current_segment.edge.end_node.y, self.x, self.y))
+                     self.current_segment.edge.end_node.x, self.current_segment.edge.end_node.y,\
+                     self.cur_completed_length, self.x, self.y))
             if self.is_segment_finish():
                 self.finish_cur_segment = True
 
