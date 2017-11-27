@@ -13,6 +13,7 @@ a_map.add_road(0, 3)
 a_map.add_road(1, 2)
 a_map.add_road(3, 2)
 
-s = Simulation()
-s.set_map(a_map)
-s.add_generator([0], [1], 2, 2)
+
+# s = Simulation()
+# s.set_map(a_map)
+# s.add_generator([0], [1], 2, 2)

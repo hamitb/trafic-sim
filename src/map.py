@@ -86,9 +86,16 @@ class Map(object):
         delete the edge between id1 and id2. If bidir is True,
         the edge in opposite direction is also deleted.
         '''
-        del self.children[id1][id2]
-        del self.parents[id2][id1]
-
+        try:
+            del self.children[id1][id2]
+        except KeyError:
+            pass
+        
+        try:
+            del self.parents[id2][id1]
+        except KeyError:
+            pass
+                
         if bidir:
             self.delete_road(id2, id1)
 
@@ -105,12 +112,11 @@ class Map(object):
         if id1 not in self.nodes:
             return None
         
-        V = len(self.nodes)
         dist_matrix, path_matrix = self.get_graph_matrix()
         
-        for k in range(V):
-            for i in range(V):
-                for j in range(V):
+        for k in self.nodes:
+            for i in self.nodes:
+                for j in self.nodes:
                     if dist_matrix[i][j] > dist_matrix[i][k]+ dist_matrix[k][j]:
                         dist_matrix[i][j] = dist_matrix[i][k]+ dist_matrix[k][j]
                         path_ik = path_matrix[i][k]
@@ -120,25 +126,23 @@ class Map(object):
         return path_matrix[id1][id2]
                         
     def get_graph_matrix(self):
-        dist_matrix = []
-        path_matrix = []
+        dist_matrix = dict()
+        path_matrix = dict()
         INF = 99999
         for source_node_id, _ in self.nodes.items():
-            dist_row = []
-            path_row = []
+            dist_matrix[source_node_id] = dict()
+            path_matrix[source_node_id] = dict()
             for dest_node_id, _ in self.nodes.items():
                 if source_node_id == dest_node_id:
-                    dist_row.append(0)
-                    path_row.append([])
+                    dist_matrix[source_node_id][dest_node_id] = 0
+                    path_matrix[source_node_id][dest_node_id] = []
                 elif dest_node_id in self.children[source_node_id]:
                     edge = self.children[source_node_id][dest_node_id]
-                    dist_row.append(edge.length)
-                    path_row.append([edge])
+                    dist_matrix[source_node_id][dest_node_id] = edge.length
+                    path_matrix[source_node_id][dest_node_id] = [edge]
                 else:
-                    dist_row.append(INF)
-                    path_row.append([])
-            dist_matrix.append(dist_row)
-            path_matrix.append(path_row)
+                    dist_matrix[source_node_id][dest_node_id] = INF
+                    path_matrix[source_node_id][dest_node_id] = []
         return dist_matrix, path_matrix
 
     def get_raw_nodes(self):

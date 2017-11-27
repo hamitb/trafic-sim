@@ -40,3 +40,8 @@ class EdgeModel(BaseModel):
                            'REFERENCES nodemodel(map_name_id, node_id) '
                            'ON DELETE CASCADE'),
                       ]
+
+try:
+    db.create_tables([MapModel, EdgeModel, NodeModel])
+except OperationalError:
+    pass
