@@ -5,8 +5,9 @@ from map import *
 from rsegment import *
  
 class Generator(object):
-    def __init__(self, _map, period, number, source_list, target_list):
+    def __init__(self, _map, period, number, source_list, target_list, sim):
         self.map = _map
+        self.sim = sim
         self.period = period
         self.number = number
         self.created_vehicle_count = 0
@@ -27,24 +28,24 @@ class Generator(object):
 
         return start_node, end_node
 
-    def gen_tick(self):
+    def get_tick(self):
         self.tick_on.set()
     
     def set_clock(self):
         while self.tick_on.wait():
-            print("clock: {}".format(self.clock))
+            print("Tick #{}".format(self.clock))
             self.clock += 1
             self.tick_on.clear()
             if self.clock % self.period == 0:
                 self.gen_on.set()
         
     def generate(self):
-        for i in range(self.number):
+        for _ in range(self.number):
             if self.gen_on.wait():
                 self.insert_new_vehicle()
                 self.gen_on.clear()
         
-        print("generated all")
+        print("Generation complete!")
         return
 
     def describe(self):
@@ -57,9 +58,10 @@ class Generator(object):
             
     def insert_new_vehicle(self):
         start_node, end_node = self.get_start_end_nodes()
-        path = Map().get_shortest_path(1, 2)
-        vhcl = Vehicle
-        print("New car created at {}, {}".format(start_node, end_node))
+        edge_path = Map().get_shortest_path(1, 2)
+        rsegment_path = self.sim.edge_to_rsegment(edge_path)
+        vhcl = Vehicle(rsegment_path)
+        print("New vehicle created!")
         self.created_vehicle_count += 1
 
 class Simulation(object):
@@ -71,6 +73,7 @@ class Simulation(object):
         self.sim_on = threading.Event()
         self.sim_thread = None
         self.generators = []
+        self.rsegments = dict()
     def set_map(self, map_object):
         '''
         set Map object as the map for the simulation
@@ -82,7 +85,7 @@ class Simulation(object):
         once in the given period. After generating number
         vehicles it stops generating
         '''
-        new_generator = Generator(self.map, period, number, source_list, target_list)
+        new_generator = Generator(self.map, period, number, source_list, target_list, self)
         self.generators.append(new_generator)
         
     def get_generators(self):
@@ -122,16 +125,31 @@ class Simulation(object):
             self.tick() 
         print("Simulation terminated")
 
+    def edge_to_rsegment(self, path):
+        rsegments = []
+        for edge in path:
+            x1, y1 = edge.start_node.x, edge.start_node.y 
+            x2, y2 = edge.end_node.x, edge.end_node.y
+            key = (x1, y1, x2, y2)
+            if key in self.rsegments:
+                existing_rs = self.rsegments[key]
+                rsegments.append(existing_rs)
+            else:
+                new_rs = Rsegment(edge)
+                self.rsegments[key] = new_rs
+                rsegments.append(new_rs)
+        return rsegments
+
     def tick(self):
         '''
         Explicit advance of simulation. tick() signal is
         generated (methods are called) for each generator and
         simulation component.
         '''
-        print("Tick!")
         for gen in self.generators:
             gen.get_tick()
-        print("All generators informed")
+        for _,rsegment in self.rsegments.items():
+            rsegment.get_tick()
             
     def terminate(self):
         '''
@@ -161,24 +179,4 @@ class Simulation(object):
 
 # time.sleep(5)
 # s.terminate()
-
-# g = Generator(None, 2, 3, [1,2,3], [3,4,5])
-# g.gen_tick()
-# time.sleep(0.5)
-# g.gen_tick()
-# time.sleep(0.5)
-# g.gen_tick()
-# time.sleep(0.5)
-# g.gen_tick()
-# time.sleep(0.5)
-# g.gen_tick()
-# time.sleep(0.5)
-# g.gen_tick()
-# time.sleep(0.5)
-# g.gen_tick()
-# time.sleep(0.5)
-# g.gen_tick()
-# time.sleep(0.5)
-# g.gen_tick()
-# time.sleep(0.5)
 

@@ -24,4 +24,3 @@ print("Segment info => {}".format(segment_1.get_info()))
 print("Is segment full ? => {}".format(segment_1.full()))
 print("(Capactity , avg_speed , vehicle_count) => {}".format(segment_1.get_stats()))
 print("Is first_vehicle is part of segment => {}".format(segment_1==first_vehicle.Rsegment))
-

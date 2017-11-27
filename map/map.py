@@ -1,6 +1,8 @@
 from models import *
 from math import sqrt
 
+
+
 class Node(object):
     def __init__(self, node_id, x, y):
         self.x = x
@@ -102,25 +104,42 @@ class Map(object):
             return path
         if id1 not in self.nodes:
             return None
-        shortest_path =None
         
-
-        for child in self.children[id1]:
-            path= path + [ self.children[id1][child] ] 
-            if child not in path:
-                new_path=self.get_shortest_path(child,id2,path)
-                if new_path !=None :
-                    len_newpath=0
-                    for edge in new_path:
-                        len_newpath=len_newpath+edge.length
-                    if shortest_path!=None:
-                        len_shortest=0
-                        for edge2 in new_path:
-                            len_shortest=len_shortest+edge2.length
-                        if len_newpath<len_shortest :
-                            shortest_path=new_path
-        # return shortest_path
-        return [Edge(Node(10, 4, 7), Node(11, 2, 8), 1), Edge(Node(11, 2, 8), Node(12, 3, 11), 1)]
+        V = len(self.nodes)
+        dist_matrix, path_matrix = self.get_graph_matrix()
+        
+        for k in range(V):
+            for i in range(V):
+                for j in range(V):
+                    if dist_matrix[i][j] > dist_matrix[i][k]+ dist_matrix[k][j]:
+                        dist_matrix[i][j] = dist_matrix[i][k]+ dist_matrix[k][j]
+                        path_ik = path_matrix[i][k]
+                        path_kj = path_matrix[k][j]
+                        path_matrix[i][j] = path_ik + path_kj
+        
+        return path_matrix[id1][id2]
+                        
+    def get_graph_matrix(self):
+        dist_matrix = []
+        path_matrix = []
+        INF = 99999
+        for source_node_id, _ in self.nodes.items():
+            dist_row = []
+            path_row = []
+            for dest_node_id, _ in self.nodes.items():
+                if source_node_id == dest_node_id:
+                    dist_row.append(0)
+                    path_row.append([])
+                elif dest_node_id in self.children[source_node_id]:
+                    edge = self.children[source_node_id][dest_node_id]
+                    dist_row.append(edge.length)
+                    path_row.append([edge])
+                else:
+                    dist_row.append(INF)
+                    path_row.append([])
+            dist_matrix.append(dist_row)
+            path_matrix.append(path_row)
+        return dist_matrix, path_matrix
 
     def get_raw_nodes(self):
         raw_data = [{'node_id': node_id, 'x': node.x, 'y': node.y, 'map_name': self.name} \
