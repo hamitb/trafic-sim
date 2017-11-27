@@ -41,6 +41,12 @@ class EdgeModel(BaseModel):
                            'ON DELETE CASCADE'),
                       ]
 
+
+'''
+    The code below normally should be executed just once via terminal to create db,
+    otherwise everytime the code below executed it would delete the old database and replace 
+    with the new empty one. For test purposes I'm leaving it here to delete soon.
+'''
 try:
     db.create_tables([MapModel, EdgeModel, NodeModel])
 except OperationalError:

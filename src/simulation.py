@@ -97,9 +97,10 @@ class Generator(object):
             
     def insert_new_vehicle(self):
         edge_path = []
-        while edge_path == []:
+        while edge_path == [] or None:
             start_node, end_node = self.get_start_end_nodes()
             edge_path = self.map.get_shortest_path(start_node, end_node)
+        
         rsegment_path = self.sim.edge_to_rsegment(edge_path)
         vhcl_id = "{}_vhcl{}".format(self.gen_id, self.created_vehicle_count)
         vhcl = Vehicle(rsegment_path, vhcl_id)
@@ -309,3 +310,5 @@ class Simulation(object):
         speed per segment. Road segment statistics need not to be
         complete in phase 1.
         '''
+        total_num_of_vhcls = sum([len(gen.vehicles) for gen in self.generators])
+        return total_num_of_vhcls

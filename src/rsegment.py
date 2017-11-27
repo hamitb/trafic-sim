@@ -14,8 +14,7 @@ class Vehicle(object):
         self.segment_count = len(path)
         self.current_segment_index = 0
         self.current_segment = path[0]
-        self.speed = 0.3
-        # self.speed = fcrowd(self.current_segment.get_vehicles_count(), self.current_segment.nlanes, self.current_segment.length)*60 
+        self.speed = fcrowd(self.current_segment.get_vehicles_count(), self.current_segment.nlanes, self.current_segment.length)*60 
         self.x = self.current_segment.edge.start_node.x
         self.y = self.current_segment.edge.start_node.y
         self.completed_segment_length=0
@@ -23,7 +22,7 @@ class Vehicle(object):
         self.total_path_length = sum([edge.length for edge in self.path])
         self.finish_cur_segment = False
         self.finish_path = False
-        self.below_zero_limit = 1e-6
+        self.below_zero_limit = 1e-4
         
         self.current_segment.insert_vehicle(self)
     

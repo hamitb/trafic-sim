@@ -122,8 +122,10 @@ class Map(object):
                         path_ik = path_matrix[i][k]
                         path_kj = path_matrix[k][j]
                         path_matrix[i][j] = path_ik + path_kj
-        
-        return path_matrix[id1][id2]
+        try:
+            return path_matrix[id1][id2]
+        except KeyError:
+            return []
                         
     def get_graph_matrix(self):
         dist_matrix = dict()

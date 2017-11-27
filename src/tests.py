@@ -1,7 +1,6 @@
 from simulation import *
 from map import *
-
-### Start map class tests
+import time
 
 points = { 
 1 : (6.4145, 112.0495), 2 : (35.2796, 110.9804), 3 : (50.7812, 167.9088), 4 : (51.0485, 228.3117), 
@@ -18,7 +17,8 @@ points = {
 45 : (95.1480, 171.5170), 46 : (4.4012, 290.1460), 47 : (9.4494, 255.4226), 48 : (10.5833, 220.6488), 
 49 : (41.1994, 168.1101), 50 : (4.5357, 227.0744), 51 : (284.6161, 253.9107), 52 : (224.8958, 241.0595), 
 53 : (173.4911, 173.0238), 54 : (155.7262, 104.2322), 55 : (155.7262, 91.7589), 56 : (243.4167, 205.9077), 
-57 : (221.4941, 209.6875), 58 : (207.5089, 162.8185), 59 : (244.1726, 143.5417), 60 : (223.7619, 100.8304), 
+57 : (221.4941, 209.6875), 58 : (207.5089, 162.8185), 59 : (244.1726, 143.5417), 60 : (223.7619, 100.8304),
+61 : (323.7619, 100.8304), 62 : (123.7619, 100.8304)
 }
 
 # edges for one way road segments. direction is from first to second point
@@ -44,46 +44,127 @@ bidir2lane = [ (1, 2), (2, 12), (12, 13), (13, 54), (54, 60),
 # points with only one edge connects. They are like dead ends, or source/sink nodes
 endpoints = [ 51, 56, 59, 60, 1, 55, 9, 40, 46, 50 ]
 
+## MAP TESTS
+print("## MAP TESTS ##")
+
+# Create map
+print("## Create map ##")
+
 a_map = Map()
 
 # Add nodes
+print("## Add nodes ##")
+
 for node_id, point in points.items():
     a_map.add_node(node_id, point[0], point[1])
 
 # Add directed edges with single lane
+print("## Add directed edges with single lane ##")
+
 for diredge in diredges:
     a_map.add_road(diredge[0], diredge[1])
 
 # Add bidir edges with single lane
+print("## Add bidir edges with single lane ##")
+
 for bidiredge in bidirsinglelane:
     a_map.add_road(bidiredge[0], bidiredge[1], bidir=True)
 
 # Add bidir edges with 2 lanes
+print("## Add bidir edges with 2 lanes ##")
+
 for bidir2 in bidir2lane:
     a_map.add_road(bidir2[0], bidir2[1], nlanes=2, bidir=True)
 
 # Delete nodes
-a_map.delete_node(46)
-a_map.delete_node(13)
+print("## Delete nodes ##")
+
+a_map.delete_node(61)
+a_map.delete_node(62)
 
 # Delete edges
+print("## Delete edges ##")
+
 a_map.delete_road(12, 13, bidir=True)
 
 # Shortest path
-path = a_map.get_shortest_path(19, 33)
+print("## Shortest path ##")
+
+path = a_map.get_shortest_path(8, 44)
 print([(edge.start_node.node_id, edge.end_node.node_id) for edge in path])
 
-# # Save map to db
-# a_map.save_map("Happy Map")
+## DB TESTS
+print("## DB TESTS ##")
+time.sleep(1)
+print("## INSPECT THE 'map.db' file created at the root folder of project with sqlite ##")
+time.sleep(1)
+print("## <INFO> ##")
+print("## To not insert same data with exact same id's which would violate the unique contsraints, ##")
+print("## if you get any errors caused by unique constraints delete the 'map.db' file  ##")
+print("## The new 'map.db' file automatically will be created each time the tests run ##")
+print("## </INFO> ##")
+time.sleep(3)
+# Save map to db
+print("## Save map to db ##")
+
+a_map.save_map("Happy Map")
 
 # # Create new map
-# another_map = Map()
+print("## Create new map ##")
 
-# # Load "Happy Map" that we created before from db
-# another_map.load_map("Happy Map")
+another_map = Map()
 
-# # Save this map as a new map to db
-# another_map.save_map("Funny Map")
+# Load "Happy Map" that we created before from db
+print("## Load 'Happy Map' that we created before from db ##")
+
+another_map.load_map("Happy Map")
+
+# Save this map as a new map to db
+print("## Save this map as a new map to db ##")
+
+another_map.save_map("Funny Map")
 
 
+## Simulation tests
+print("## SIMULATION TESTS ##")
 
+# Create simulation
+print("## Create simulation ##")
+
+s = Simulation()
+
+# Set map
+print("## Set map ##")
+
+s.set_map(a_map)
+
+# Add generators
+print("## Add generators ##")
+
+s.add_generator(range(60), range(60), 3, 10)
+s.add_generator(range(60), range(60), 5, 5)
+
+# Get generators
+# print("## Get generators ##")
+
+print (s.get_generators())
+
+# Start simulation
+print("## Start simulation ##")
+
+s.start_simulation(1000)
+time.sleep(10)
+
+# Terminate simulation
+print("## Terminate simulation ##")
+
+# Total number of vehicles
+print("## Total number of vehicles ##")
+print(s.get_stats())
+
+s.terminate()
+
+# Proceed with ticks
+for _ in range(10):
+    s.tick()
+    time.sleep(1)
