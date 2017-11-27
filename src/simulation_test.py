@@ -1,5 +1,6 @@
 from simulation import *
 from map import *
+import threading
 
 a_map = Map()
 a_map.add_node(0, 0, 5)
@@ -14,5 +15,4 @@ a_map.add_road(3, 2)
 
 s = Simulation()
 s.set_map(a_map)
-s.add_generator([0,1,2,3], [1,2,3], 2, 2)
-s.start_simulation(500)
+s.add_generator([0], [1], 2, 2)
