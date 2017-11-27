@@ -57,8 +57,10 @@ class Generator(object):
                }
             
     def insert_new_vehicle(self):
-        start_node, end_node = self.get_start_end_nodes()
-        edge_path = Map().get_shortest_path(1, 2)
+        edge_path = []
+        while edge_path == []:
+            start_node, end_node = self.get_start_end_nodes()
+            edge_path = self.map.get_shortest_path(start_node, end_node)
         rsegment_path = self.sim.edge_to_rsegment(edge_path)
         vhcl = Vehicle(rsegment_path)
         print("New vehicle created!")

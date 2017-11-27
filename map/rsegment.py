@@ -20,6 +20,7 @@ class Vehicle(object):
         self.completed_length=0
         self.finish_cur_segment = False
         self.finish_path = False
+        self.below_zero_limit = 1e-6
         
         self.current_segment.insert_vehicle(self)
     
@@ -47,31 +48,40 @@ class Vehicle(object):
 
             self.bound_position()
 
-            print("Vehicle moved in segment{}/{}, current position: ({}, {})".format(self.current_segment_index+1, self.segment_count, self.x, self.y))
+            print("Vehicle moved in segment {}/{}, destination: {}, {} current position: ({}, {})".format \
+                    (self.current_segment_index+1,self.segment_count,\
+                     self.current_segment.edge.end_node.x, self.current_segment.edge.end_node.y, self.x, self.y))
             if self.is_segment_finish():
                 self.finish_cur_segment = True
 
     def bound_position(self):
         x_positive_directed = self.get_vector(self.speed)[0] > 0
         y_positive_directed = self.get_vector(self.speed)[1] > 0
-        
+
         x_end = self.current_segment.edge.end_node.x
         y_end = self.current_segment.edge.end_node.y
 
-        if x_positive_directed and self.x > x_end:
+        x_finish = abs(self.x - x_end) < self.below_zero_limit
+        y_finish = abs(self.y - y_end) < self.below_zero_limit
+
+        if x_finish:
+            self.x = x_end
+        elif x_positive_directed and self.x > x_end:
             self.x = x_end
         elif not x_positive_directed and self.x < x_end:
             self.x = x_end
 
-        if y_positive_directed and self.y > y_end:
+        if y_finish:
             self.y = y_end
-        elif not x_positive_directed and self.x < x_end:
+        elif y_positive_directed and self.y > y_end:
             self.y = y_end
-        
+        elif not y_positive_directed and self.y < y_end:
+            self.y = y_end
+
     def is_segment_finish(self):
         x_end = self.current_segment.edge.end_node.x
         y_end = self.current_segment.edge.end_node.y
-
+        
         return self.x == x_end and self.y == y_end
 
     def get_vector(self, speed):
