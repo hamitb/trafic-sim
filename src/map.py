@@ -99,7 +99,7 @@ class Map(object):
         if bidir:
             self.delete_road(id2, id1)
 
-    def get_shortest_path(self, id1, id2, path=[]):
+    def get_shortest_path(self, id1, id2):
         '''
         The list of edges in the shortest path from id1 and id2 is
         returned as a list of tuples. (You can use Floyd-Warshall
@@ -108,9 +108,9 @@ class Map(object):
         Map is not changed)
         '''
         if id1==id2:
-            return path
+            return []
         if id1 not in self.nodes:
-            return None
+            return []
         
         dist_matrix, path_matrix = self.get_graph_matrix()
         

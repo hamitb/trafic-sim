@@ -62,15 +62,17 @@ class Generator(object):
                 print("{} Terminated!".format(self.gen_id))
                 self.gen_on.set()
                 break
+            
             if self.clock % self.period == 0:
                 self.gen_on.set()
 
-            if len(self.vehicles) > 0:
+            if len(self.vehicles) > 0 and self.created_vehicle_count == self.number:
                 is_completed = True
                 for vehicle in self.vehicles:
                     is_completed = is_completed and vehicle.finish_path
 
                 self.completed = is_completed
+                
                 if self.completed:
                     print("{} Done!".format(self.gen_id))
                     break
@@ -97,7 +99,7 @@ class Generator(object):
             
     def insert_new_vehicle(self):
         edge_path = []
-        while edge_path == [] or None:
+        while edge_path == [] or edge_path == None:
             start_node, end_node = self.get_start_end_nodes()
             edge_path = self.map.get_shortest_path(start_node, end_node)
         
@@ -206,6 +208,7 @@ class Simulation(object):
                 break
 
             self.tick()
+        
         print("Simulation terminated")
         return
 

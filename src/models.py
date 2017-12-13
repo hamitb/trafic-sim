@@ -15,7 +15,7 @@ class MapModel(BaseModel):
         order_by = ('created_at',)
 
 class NodeModel(BaseModel):
-    node_id = CharField()
+    node_id = IntegerField()
     map_name = ForeignKeyField(MapModel, related_name="nodes", to_field="name", on_delete="CASCADE")
     x = FloatField()
     y = FloatField()
@@ -26,8 +26,8 @@ class NodeModel(BaseModel):
         )   
 
 class EdgeModel(BaseModel):
-    start_node = CharField()
-    end_node = CharField()
+    start_node = IntegerField()
+    end_node = IntegerField()
     map_name = CharField()
     lanes_count = IntegerField()
     length = FloatField()

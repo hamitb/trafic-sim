@@ -1,0 +1,2 @@
+1.  Vehicles moves multiple times in a tick if it completes the current segment
+    in one move and pass to next.

@@ -107,7 +107,10 @@ time.sleep(3)
 # Save map to db
 print("## Save map to db ##")
 
-a_map.save_map("Happy Map")
+try:
+    a_map.save_map("Happy Map")
+except:
+    pass
 
 # # Create new map
 print("## Create new map ##")
@@ -122,7 +125,10 @@ another_map.load_map("Happy Map")
 # Save this map as a new map to db
 print("## Save this map as a new map to db ##")
 
-another_map.save_map("Funny Map")
+try:
+    another_map.save_map("Funny Map")
+except:
+    pass
 
 
 ## Simulation tests

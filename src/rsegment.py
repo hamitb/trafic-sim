@@ -11,6 +11,7 @@ class Vehicle(object):
         '''
         self.vhcl_id = vhcl_id
         self.path=path
+        self.clock = 0
         self.segment_count = len(path)
         self.current_segment_index = 0
         self.current_segment = path[0]
@@ -32,14 +33,15 @@ class Vehicle(object):
             self.current_segment = self.path[self.current_segment_index]
             self.current_segment.insert_vehicle(self)
             self.finish_cur_segment = False
-            completed_segment_length = 0
+            self.speed = fcrowd(self.current_segment.get_vehicles_count(), self.current_segment.nlanes, self.current_segment.length)*60
+            self.completed_segment_length = 0
             for segment in self.path[:self.current_segment_index]:
-                completed_segment_length += segment.edge.length
+                self.completed_segment_length += segment.edge.length
         else:
             self.finish_path = True
-            completed_segment_length = 0
+            self.completed_segment_length = 0
             for segment in self.path[:self.current_segment_index]:
-                completed_segment_length += segment.edge.length
+                self.completed_segment_length += segment.edge.length
         
     def move(self):
         if not self.finish_path:
@@ -52,13 +54,16 @@ class Vehicle(object):
                                       (self.x - self.current_segment.edge.start_node.x)**2)**0.5
             self.cur_completed_length = self.completed_segment_length + len_to_seg_start
             
-            print("{}: Position: ({}, {}) ==> ({},{}) ==> ({},{}), Path: {}/{}, Length: {}/{}".format(\
-                   self.vhcl_id, self.current_segment.edge.start_node.x, self.current_segment.edge.start_node.y,\
+            print("{}: TimePassed: {}, Position: ({}, {}) ==> ({},{}) ==> ({},{}), Path: {}/{}, Length: {}/{}".format(\
+                   self.vhcl_id, self.clock, self.current_segment.edge.start_node.x, self.current_segment.edge.start_node.y,\
                    self.x, self.y, self.current_segment.edge.end_node.x, self.current_segment.edge.end_node.y, \
                    self.current_segment_index+1, self.segment_count, self.cur_completed_length, self.total_path_length))
             
             if self.is_segment_finish():
                 self.finish_cur_segment = True
+
+    def increase_clock(self):
+        self.clock += 1
 
     def bound_position(self):
         x_positive_directed = self.get_vector(self.speed)[0] > 0
@@ -130,8 +135,7 @@ class Rsegment(object):
         '''
         self.length = edge.length
         self.edge = edge
-        self.rs_id = "rs{}{}{}{}".format(self.edge.start_node.x, self.edge.start_node.y, \
-                                       self.edge.end_node.x, self.edge.end_node.y)
+        self.rs_id = "rs_f{}_t{}".format(self.edge.start_node.node_id, self.edge.end_node.node_id)
         self.nlanes = edge.lanes_count
         self.vehicles = []
         self.segment_clock = threading.Event()
@@ -165,7 +169,9 @@ class Rsegment(object):
             if self.completed or self.terminated:
                 self.segment_clock.clear()
                 break
+            # print("{} get tick!".format(self.rs_id))
             for vhcl in self.vehicles:
+                vhcl.increase_clock()
                 vhcl.move()
                 if vhcl.finish_cur_segment:
                     vhcl.complete_segment()
