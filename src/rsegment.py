@@ -1,5 +1,6 @@
 import threading
 
+
 class Vehicle(object):
     '''
     Represent Vehicle over a Rsegment
@@ -53,11 +54,13 @@ class Vehicle(object):
             len_to_seg_start = ((self.y - self.current_segment.edge.start_node.y)**2 + \
                                       (self.x - self.current_segment.edge.start_node.x)**2)**0.5
             self.cur_completed_length = self.completed_segment_length + len_to_seg_start
-            
-            print("{}: TimePassed: {}, Position: ({}, {}) ==> ({},{}) ==> ({},{}), Path: {}/{}, Length: {}/{}".format(\
+
+            print('\x1b[6;30;43m' + 
+                   "{}: TimePassed: {}, Position: ({:.2f}, {:.2f}) ==> ({:.2f}, {:.2f}) ==> ({:.2f}, {:.2f}),\nPath: {}/{}, Length: {:.2f}/{:.2f}\n".format(\
                    self.vhcl_id, self.clock, self.current_segment.edge.start_node.x, self.current_segment.edge.start_node.y,\
                    self.x, self.y, self.current_segment.edge.end_node.x, self.current_segment.edge.end_node.y, \
-                   self.current_segment_index+1, self.segment_count, self.cur_completed_length, self.total_path_length))
+                   self.current_segment_index+1, self.segment_count, self.cur_completed_length, self.total_path_length)\
+                   + '\x1b[0m')
             
             if self.is_segment_finish():
                 self.finish_cur_segment = True

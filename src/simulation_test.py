@@ -19,8 +19,8 @@ s.set_map(a_map)
 # Add generators
 print("## Add generators ##")
 
-s.add_generator(range(60), range(60), 2, 30)
-# s.add_generator(range(60), range(60), 5, 5)
+s.add_generator(range(60), range(60), 2, 10)
+s.add_generator(range(60), range(60), 3, 5)
 
 print("## Start simulation ##")
 

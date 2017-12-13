@@ -74,7 +74,9 @@ class Generator(object):
                 self.completed = is_completed
                 
                 if self.completed:
-                    print("{} Done!".format(self.gen_id))
+                    print('\x1b[5;37;44m' + \
+                    "{} Done!".format(self.gen_id)+ \
+                    '\x1b[0m')
                     break
             
         
@@ -85,8 +87,6 @@ class Generator(object):
                     return
                 self.insert_new_vehicle()
                 self.gen_on.clear()
-        
-        print("{}: Generation completed!".format(self.gen_id))
         return
 
     def describe(self):
@@ -106,7 +106,9 @@ class Generator(object):
         rsegment_path = self.sim.edge_to_rsegment(edge_path)
         vhcl_id = "{}_vhcl{}".format(self.gen_id, self.created_vehicle_count)
         vhcl = Vehicle(rsegment_path, vhcl_id)
-        print("{}: New vehicle created!".format(vhcl_id))
+        print('\x1b[6;37;44m' + \
+              "{}: New vehicle created!\n".format(vhcl_id)\
+              + '\x1b[0m')
         self.created_vehicle_count += 1
         self.vehicles.append(vhcl)
 
@@ -174,7 +176,9 @@ class Simulation(object):
         if tickperiod:
             self.manual = False
             self.sim_on.set()
-            print("Simulation Started !")
+            print('\x1b[5;30;42m' + \
+                  "Simulation Started !" +\
+                  '\x1b[0m')
             self.sim_thread = threading.Thread(target=self._simulation_thread, name="sim_thread" ,args=[tickperiod])
             self.sim_thread.start()
         else:
@@ -209,7 +213,9 @@ class Simulation(object):
 
             self.tick()
         
-        print("Simulation terminated")
+        print('\x1b[5;30;41m' + \
+              "Simulation terminated !" +\
+              '\x1b[0m')
         return
 
     def edge_to_rsegment(self, path):
@@ -246,7 +252,8 @@ class Simulation(object):
                 for _,rsegment in self.rsegments.items():
                     rsegment.complete_segment()
 
-        print("Tick #{}".format(self.clock))
+        print('\x1b[6;30;42m' + "Tick #{}".format(self.clock) + '\x1b[0m')
+        # print("Tick #{}".format(self.clock))
         self.clock += 1
 
         for gen in self.generators:
