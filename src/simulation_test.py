@@ -25,4 +25,3 @@ s.add_generator(range(60), range(60), 3, 5)
 print("## Start simulation ##")
 
 s.start_simulation(200)
-s.wait()

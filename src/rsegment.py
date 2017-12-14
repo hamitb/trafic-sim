@@ -5,63 +5,71 @@ class Vehicle(object):
     '''
     Represent Vehicle over a Rsegment
     '''
+
     def __init__(self, path, vhcl_id):
         '''
         Construct a vehicle. A vehicle will have start time in Rsegment,
         completed_length through Rsegment, completion time, and current position.
         '''
         self.vhcl_id = vhcl_id
-        self.path=path
+        self.path = path
         self.clock = 0
         self.segment_count = len(path)
         self.current_segment_index = 0
         self.current_segment = path[0]
-        self.speed = fcrowd(self.current_segment.get_vehicles_count(), self.current_segment.nlanes, self.current_segment.length)*60 
+        self.speed = fcrowd(self.current_segment.get_vehicles_count(), self.current_segment.nlanes,
+                            self.current_segment.length) * 60
         self.x = self.current_segment.edge.start_node.x
         self.y = self.current_segment.edge.start_node.y
-        self.completed_segment_length=0
-        self.cur_completed_length=0
+        self.completed_segment_length = 0
+        self.cur_completed_length = 0
         self.total_path_length = sum([edge.length for edge in self.path])
         self.finish_cur_segment = False
         self.finish_path = False
-        self.below_zero_limit = 1e-4
-        
+        self.below_zero_limit = 1e-2
+        self.move_vector = self.get_vector(self.speed)
+
         self.current_segment.insert_vehicle(self)
-    
+
     def complete_segment(self):
-        if self.current_segment_index < self.segment_count-1:
+        if self.current_segment_index < self.segment_count - 1:
             self.current_segment_index += 1
             self.current_segment = self.path[self.current_segment_index]
             self.current_segment.insert_vehicle(self)
             self.finish_cur_segment = False
-            self.speed = fcrowd(self.current_segment.get_vehicles_count(), self.current_segment.nlanes, self.current_segment.length)*60
+            self.speed = fcrowd(self.current_segment.get_vehicles_count(), self.current_segment.nlanes, \
+                                self.current_segment.length) * 60
+            self.move_vector = self.get_vector(self.speed)
+
             self.completed_segment_length = 0
             for segment in self.path[:self.current_segment_index]:
                 self.completed_segment_length += segment.edge.length
         else:
             self.finish_path = True
-            self.completed_segment_length = 0
+            self.completed_segment_lcength = 0
             for segment in self.path[:self.current_segment_index]:
                 self.completed_segment_length += segment.edge.length
-        
+
     def move(self):
         if not self.finish_path:
-            move_vector = self.get_vector(self.speed)
-            self.x += move_vector[0]
-            self.y += move_vector[1]
+            self.x += self.move_vector[0]
+            self.y += self.move_vector[1]
             self.bound_position()
-            
-            len_to_seg_start = ((self.y - self.current_segment.edge.start_node.y)**2 + \
-                                      (self.x - self.current_segment.edge.start_node.x)**2)**0.5
+
+            len_to_seg_start = ((self.y - self.current_segment.edge.start_node.y) ** 2 +
+                                (self.x - self.current_segment.edge.start_node.x) ** 2) ** 0.5
             self.cur_completed_length = self.completed_segment_length + len_to_seg_start
 
-            print('\x1b[6;30;43m' + 
-                   "{}: TimePassed: {}, Position: ({:.2f}, {:.2f}) ==> ({:.2f}, {:.2f}) ==> ({:.2f}, {:.2f}),\nPath: {}/{}, Length: {:.2f}/{:.2f}\n".format(\
-                   self.vhcl_id, self.clock, self.current_segment.edge.start_node.x, self.current_segment.edge.start_node.y,\
-                   self.x, self.y, self.current_segment.edge.end_node.x, self.current_segment.edge.end_node.y, \
-                   self.current_segment_index+1, self.segment_count, self.cur_completed_length, self.total_path_length)\
-                   + '\x1b[0m')
-            
+            print('\x1b[6;30;43m' +
+                  "{}: VehicleTime: {}, Position: ({:.2f}, {:.2f}) ==> ({:.2f}, {:.2f}) ==> ({:.2f}, {:.2f}),\n"
+                  "Path: {}/{}, Length: {:.2f}/{:.2f}\n".format(
+                      self.vhcl_id, self.clock, self.current_segment.edge.start_node.x,
+                      self.current_segment.edge.start_node.y,
+                      self.x, self.y, self.current_segment.edge.end_node.x, self.current_segment.edge.end_node.y,
+                      self.current_segment_index + 1, self.segment_count, self.cur_completed_length,
+                      self.total_path_length)
+                  + '\x1b[0m')
+
             if self.is_segment_finish():
                 self.finish_cur_segment = True
 
@@ -95,23 +103,23 @@ class Vehicle(object):
     def is_segment_finish(self):
         x_end = self.current_segment.edge.end_node.x
         y_end = self.current_segment.edge.end_node.y
-        
-        return self.x == x_end and self.y == y_end
+
+        threshold = 1e-2
+
+        return self.x - x_end < threshold and self.y - y_end < threshold
 
     def get_vector(self, speed):
         x_diff = self.current_segment.edge.end_node.x - self.current_segment.edge.start_node.x
         y_diff = self.current_segment.edge.end_node.y - self.current_segment.edge.start_node.y
 
         vector = [x_diff, y_diff]
-        vector_normalized = [i/self.current_segment.length for i in vector]
+        vector_normalized = [i / self.current_segment.length for i in vector]
         move_vector = [i * speed for i in vector_normalized]
 
         return move_vector
 
 
-
-
-def fcrowd(v, l , d):
+def fcrowd(v, l, d):
     '''
     returns a speed factor based on how crowded road segment is
     it returns fmax for all values in [0,cmin]. fmin for all values > cmax
@@ -119,13 +127,13 @@ def fcrowd(v, l , d):
     '''
     fmin, fmax = 0.05, 1.0
     cmin, cmax = 10, 100
-    c = v / (l*d)
+    c = v / (l * d)
     # vehicle per unit distance in a lane
-    if c <= cmin: 
+    if c <= cmin:
         return fmax
-    elif c < cmax: 
-        return fmax - ( c - cmin) * ( fmax - fmin ) / ( cmax - cmin )
-    else: 
+    elif c < cmax:
+        return fmax - (c - cmin) * (fmax - fmin) / (cmax - cmin)
+    else:
         return fmin
 
 
@@ -142,7 +150,7 @@ class Rsegment(object):
         self.nlanes = edge.lanes_count
         self.vehicles = []
         self.segment_clock = threading.Event()
-        self.segment_thread = threading.Thread(target=self.step_forward, name="rs_thread")
+        self.segment_thread = threading.Thread(target=self.step_forward, name="{}_thread".format(self.rs_id))
         self.segment_thread.start()
         self.completed = False
         self.terminated = False
@@ -160,19 +168,18 @@ class Rsegment(object):
 
     def get_tick(self):
         self.segment_clock.set()
-    
+
     def complete_segment(self):
         self.completed = True
-    
+
     def terminate_segment(self):
         self.terminated = True
-    
+
     def step_forward(self):
         while self.segment_clock.wait():
             if self.completed or self.terminated:
                 self.segment_clock.clear()
                 break
-            # print("{} get tick!".format(self.rs_id))
             for vhcl in self.vehicles:
                 vhcl.increase_clock()
                 vhcl.move()
@@ -187,7 +194,7 @@ class Rsegment(object):
         return length, number of lanes and nodes it connects in a
         tuple.
         '''
-        return (self.length, self.nlanes,(self.edge.start_node.node_id, self.edge.end_node.node_id))
+        return (self.length, self.nlanes, (self.edge.start_node.node_id, self.edge.end_node.node_id))
 
     def get_vehicles_count(self):
         '''
@@ -200,13 +207,13 @@ class Rsegment(object):
         return capacity of the vehicle
         '''
         return self.nlanes * 150 * self.length
-        
+
     def full(self):
         '''
         check if capacity is reached (getNVehicles()>=getCapacity())
         '''
-        return  self.get_vehicles_count() >= self.get_capacity()
-       
+        return self.get_vehicles_count() >= self.get_capacity()
+
     def wait_capacity(self):
         '''
         wait for a new opening for capacity (in phase 2)
@@ -218,16 +225,5 @@ class Rsegment(object):
         speed (for completed vehicles), current number of
         vehicles. (for phase 2)
             '''
-        total_speed=0
-        completed_vehicle_cnt=0
-        for vehicle in self.vehicles:
-            if vehicle.x == vehicle.Rsegment.edge.end_node.x and vehicle.y == vehicle.Rsegment.edge.end_node.y:
-                completed_vehicle_cnt+=1
-                total_speed=vehicle.speed
-        if completed_vehicle_cnt==0:
-            avg_speed=None
-        else:
-            avg_speed=total_speed / completed_vehicle_cnt
 
-        return (self.get_capacity() , avg_speed , self.get_vehicles_count())
-
+        return self.get_vehicles_count()

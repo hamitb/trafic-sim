@@ -5,7 +5,7 @@ from map import *
 from rsegment import *
  
 class Generator(object):
-    def __init__(self, gen_id, _map, period, number, source_list, target_list, sim):
+    def __init__(self, gen_id, _map, period, number, source_list, target_list, sim, lock):
         self.map = _map
         self.gen_id = "gen{}".format(gen_id)
         self.vehicles = []
@@ -18,10 +18,11 @@ class Generator(object):
         self.target_list = target_list
         self.gen_on = threading.Event()
         self.tick_on = threading.Event()
-        self.clock_thread = threading.Thread(target=self.set_clock, name="gen_clock_thread")
-        self.gen_thread = threading.Thread(target=self.generate, name="gen_thread")
+        self.clock_thread = threading.Thread(target=self.set_clock, name="{}_clock_thread".format(self.gen_id))
+        self.gen_thread = threading.Thread(target=self.generate, name="{}_thread".format(self.gen_id))
         self.completed = False
         self.terminated = False
+        self.lock = lock
 
     def get_start_end_nodes(self):
         start_node = np.random.choice(self.source_list)
@@ -102,8 +103,10 @@ class Generator(object):
         while edge_path == [] or edge_path == None:
             start_node, end_node = self.get_start_end_nodes()
             edge_path = self.map.get_shortest_path(start_node, end_node)
-        
+
+        self.lock.acquire()
         rsegment_path = self.sim.edge_to_rsegment(edge_path)
+        self.lock.release()
         vhcl_id = "{}_vhcl{}".format(self.gen_id, self.created_vehicle_count)
         vhcl = Vehicle(rsegment_path, vhcl_id)
         print('\x1b[6;37;44m' + \
@@ -128,6 +131,7 @@ class Simulation(object):
         self.terminated = False
         self.sub_comps_terminated = False
         self.manual = True
+        self.lock = threading.Lock()
     def set_map(self, map_object):
         '''
         set Map object as the map for the simulation
@@ -140,7 +144,7 @@ class Simulation(object):
         vehicles it stops generating
         '''
         gen_id = self.next_gen_id
-        new_generator = Generator(gen_id, self.map, period, number, source_list, target_list, self)
+        new_generator = Generator(gen_id, self.map, period, number, source_list, target_list, self, self.lock)
         self.generators.append(new_generator)
         self.next_gen_id += 1
         
@@ -176,8 +180,8 @@ class Simulation(object):
         if tickperiod:
             self.manual = False
             self.sim_on.set()
-            print('\x1b[5;30;42m' + \
-                  "Simulation Started !" +\
+            print('\x1b[5;30;42m' +
+                  "Simulation Started !" +
                   '\x1b[0m')
             self.sim_thread = threading.Thread(target=self._simulation_thread, name="sim_thread" ,args=[tickperiod])
             self.sim_thread.start()
@@ -194,7 +198,6 @@ class Simulation(object):
 
     def _simulation_thread(self, tickperiod):
         while self.sim_on.wait():
-            # print("active threads ", threading.active_count())
             time.sleep(tickperiod * 1e-3)
             
             if self.sim_completed() or self.terminated:
@@ -219,19 +222,19 @@ class Simulation(object):
         return
 
     def edge_to_rsegment(self, path):
-        rsegments = []
+        rsegment_path = []
         for edge in path:
-            x1, y1 = edge.start_node.x, edge.start_node.y 
-            x2, y2 = edge.end_node.x, edge.end_node.y
-            key = (x1, y1, x2, y2)
-            if key in self.rsegments:
-                existing_rs = self.rsegments[key]
-                rsegments.append(existing_rs)
-            else:
+            start_id = edge.start_node.node_id
+            end_id = edge.end_node.node_id
+            key = (start_id, end_id)
+            try:
+                rsegment_path.append(self.rsegments[key])
+            except KeyError:
                 new_rs = Rsegment(edge)
                 self.rsegments[key] = new_rs
-                rsegments.append(new_rs)
-        return rsegments
+                rsegment_path.append(new_rs)
+
+        return rsegment_path
 
     def tick(self):
         '''
@@ -258,7 +261,8 @@ class Simulation(object):
 
         for gen in self.generators:
             gen.get_tick()
-        for _,rsegment in self.rsegments.items():
+        for key in list(self.rsegments):
+            rsegment = self.rsegments[key]
             rsegment.get_tick()
             
     def terminate(self):

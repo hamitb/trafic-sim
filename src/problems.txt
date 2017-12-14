@@ -1,2 +1,8 @@
 1.  Vehicles moves multiple times in a tick if it completes the current segment
     in one move and pass to next.
+2.  If two rsegments created at same time python misbehave:
+        0x104e4c898 in vhcl 13
+        0x104c06710 in sim
+
+        0x104e4cef0 in vhcl 05
+        0x104e4c390 in sim
