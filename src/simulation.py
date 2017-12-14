@@ -1,6 +1,6 @@
 import threading
 import time
-import secrets
+import numpy as np
 from map import *
 from rsegment import *
  
@@ -24,8 +24,8 @@ class Generator(object):
         self.terminated = False
 
     def get_start_end_nodes(self):
-        start_node = secrets.choice(self.source_list)
-        end_node = secrets.choice(self.target_list)
+        start_node = np.random.choice(self.source_list)
+        end_node = np.random.choice(self.target_list)
 
         return start_node, end_node
 
@@ -75,7 +75,7 @@ class Generator(object):
                 
                 if self.completed:
                     print('\x1b[5;37;44m' + \
-                    "{} Done!".format(self.gen_id)+ \
+                    "{} Done!\n".format(self.gen_id)+ \
                     '\x1b[0m')
                     break
             
@@ -252,7 +252,7 @@ class Simulation(object):
                 for _,rsegment in self.rsegments.items():
                     rsegment.complete_segment()
 
-        print('\x1b[6;30;42m' + "Tick #{}".format(self.clock) + '\x1b[0m')
+        print('\x1b[6;30;42m' + "Tick #{}\n".format(self.clock) + '\x1b[0m')
         # print("Tick #{}".format(self.clock))
         self.clock += 1
 
