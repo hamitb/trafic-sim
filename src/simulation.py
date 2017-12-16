@@ -155,13 +155,12 @@ class Simulation(object):
         gens = [gen.describe() for gen in self.generators]
         return gens
 
-    def del_generator(self, num):
+    def del_generator(self, index):
         ''' 
         delete the generator in the given order of
         insertion (getGenerators() list order)
         '''
-        for i in range(num):
-            del self.generators[0]
+        del self.generators[index]
     def start_simulation(self, tickperiod = 0):
         '''
         Start the simulation with each tick of clock lasts
