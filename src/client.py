@@ -12,7 +12,6 @@ def client_service(s):
     }
     mes_json = json.dumps(mes)
     mes_length = len(mes_json)
-    print(mes_length)
     s.send('{:10d}'.format(mes_length).encode())
     s.send(mes_json.encode())
 

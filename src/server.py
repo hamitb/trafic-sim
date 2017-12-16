@@ -1,5 +1,6 @@
 import json
 from socket import *
+from printwc import printwc
 from threading import Thread
 
 class Server(Thread):
@@ -7,6 +8,9 @@ class Server(Thread):
         self.s = socket(AF_INET,SOCK_STREAM)
         self.port = tcp_port
         self.ip = tcp_ip
+
+        self.objs = dict()
+        self.methods = dict()
 
         self.s.bind((tcp_ip, tcp_port))
         super().__init__()
@@ -48,7 +52,13 @@ class Server(Thread):
             # Wait for new rpc request
             req_len_bin = s.recv(10)
 
-        print("{} leaves".format(peer))
+        printwc('blue', "{} leaves".format(peer))
+
+    def register_obj(self, obj_id, obj):
+        self.objs[obj_id] = obj
+
+    def register_method(self, method_name, method):
+        self.methods[method_name] = method
 
     def rpc_handler(self, req_data):
 
@@ -63,7 +73,8 @@ class Server(Thread):
         args = req_data['args']
         kwargs = req_data['kwargs']
 
-        print("Server executes: {}.{} with args:{} and kwargs:{}".format(obj_id, method, args, kwargs))
+        printwc('yellow',"Server executes: {}.{} with args:{} and kwargs:{}".format(obj_id, method, args, kwargs))
+
 
 
 if __name__ == '__main__':
