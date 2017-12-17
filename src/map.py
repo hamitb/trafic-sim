@@ -1,5 +1,6 @@
 from models import *
 from math import sqrt
+from printwc import printwc
 
 
 
@@ -35,15 +36,25 @@ class Map(object):
         self.children = dict()
         self.parents = dict()
         self.name = ''
+        self.last_node_id = 1
         
-    def add_node(self, node_id, x, y):
+    def add_node(self, x, y, node_id=None):
         '''
-        create a vertice at (x,y) with given id
+        create a node at (x,y) with given id
         '''
+        if node_id is None:
+            node_id = self.create_node_id()
         new_node = Node(node_id, x, y)
         self.nodes[node_id] = new_node
         self.children[node_id] = dict()
         self.parents[node_id] = dict()
+        self.last_node_id = node_id + 1
+
+    def create_node_id(self):
+        while(self.last_node_id in self.nodes):
+            self.last_node_id += 1
+
+        return self.last_node_id
 
     def delete_node(self, node_id):
         '''
@@ -76,6 +87,7 @@ class Map(object):
 
         self.children[id1][id2] = new_road
         self.parents[id2][id1] = new_road
+
 
         if bidir:
             self.add_road(id2, id1, nlanes)
@@ -157,7 +169,8 @@ class Map(object):
         raw_edges = []
 
         for start_node in self.children:
-            for _, edge_between in self.children[start_node].items():
+            edge_from_current = self.children[start_node]
+            for _, edge_between in edge_from_current.items():
                 raw_edges.append({
                     'start_node': edge_between.start_node.node_id,
                     'end_node': edge_between.end_node.node_id,
@@ -179,8 +192,10 @@ class Map(object):
         raw_edges = self.get_raw_edges()
 
         with db.atomic():
-            NodeModel.insert_many(raw_nodes).execute()
-            EdgeModel.insert_many(raw_edges).execute()
+            if raw_nodes != []:
+                NodeModel.insert_many(raw_nodes).execute()
+            if raw_edges != []:
+                EdgeModel.insert_many(raw_edges).execute()
 
     def delete_map(self):
         '''
@@ -197,7 +212,7 @@ class Map(object):
 
         for node in nodes:
             node_id, x_pos, y_pos = node['node_id'], node['x'], node['y']
-            self.add_node(node_id, x_pos, y_pos)
+            self.add_node(x_pos, y_pos, node_id)
         
         for edge in edges:
             start_node, end_node, lanes_count = edge['start_node'], edge['end_node'], edge['lanes_count']

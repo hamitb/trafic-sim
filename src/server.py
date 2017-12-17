@@ -2,17 +2,15 @@ import json
 from socket import *
 from printwc import printwc
 from threading import Thread
+from controller import Controller
 
 class Server(Thread):
     def __init__(self, tcp_port, tcp_ip=''):
         self.s = socket(AF_INET,SOCK_STREAM)
         self.port = tcp_port
         self.ip = tcp_ip
-
-        self.objs = dict()
-        self.methods = dict()
-
         self.s.bind((tcp_ip, tcp_port))
+
         super().__init__()
 
     def run(self):
@@ -33,7 +31,11 @@ class Server(Thread):
         :return:
         '''
 
-        # Receive upcoming messages length as bytes object
+        # Controller(Map + Simulation) of this connection
+        c = Controller()
+        c_methods = c.methods
+
+        # Receive the upcoming message's length as bytes object
         req_len_bin = s.recv(10)
         peer = s.getpeername()
 
@@ -47,34 +49,20 @@ class Server(Thread):
             req_data = json.loads(req)
 
             # Handle rpc request
-            self.rpc_handler(req_data)
+            m_name = req_data['method']
+            args = req_data['args']
+            kwargs = req_data['kwargs']
+
+            printwc('yellow', "{} calls: {} with args:{} and kwargs:{}\n".format(peer, m_name, args, kwargs))
+
+            # Call requested method
+            f = c_methods[m_name]
+            f(*args, **kwargs)
 
             # Wait for new rpc request
             req_len_bin = s.recv(10)
 
-        printwc('blue', "{} leaves".format(peer))
-
-    def register_obj(self, obj_id, obj):
-        self.objs[obj_id] = obj
-
-    def register_method(self, method_name, method):
-        self.methods[method_name] = method
-
-    def rpc_handler(self, req_data):
-
-        '''
-        Given rpc request data coming from client, rpc_handler executes the given method with
-        given parameters.
-        :param req_data:
-        :return:
-        '''
-        obj_id = req_data['obj_id']
-        method = req_data['method']
-        args = req_data['args']
-        kwargs = req_data['kwargs']
-
-        printwc('yellow',"Server executes: {}.{} with args:{} and kwargs:{}".format(obj_id, method, args, kwargs))
-
+        printwc('blue', "{} leaves\n".format(peer))
 
 
 if __name__ == '__main__':

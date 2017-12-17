@@ -5,17 +5,37 @@ import time
 
 
 def client_service(s):
-    mes = {
-        'obj_id': 'map', 'method': 'add_node',
-        'args': [5, 4],
-        'kwargs': {'node_id': 10}
-    }
-    mes_json = json.dumps(mes)
-    mes_length = len(mes_json)
-    s.send('{:10d}'.format(mes_length).encode())
-    s.send(mes_json.encode())
+    messages = [
+        {
+            'method': 'load_map',
+            'args': ["RemoteMap"],
+            'kwargs': {}
+        },
+        {
+            'method': 'add_generator',
+            'args': [list(range(1,6)), list(range(1,6)), 2, 10],
+            'kwargs': {}
+        },
+        {
+            'method': 'add_generator',
+            'args': [list(range(1,6)), list(range(1,6)), 3, 5],
+            'kwargs': {}
+        },
+        {
+            'method': 'start_simulation',
+            'args': [500],
+            'kwargs': {}
+        },
+    ]
 
-    time.sleep(3)
+    for mes in messages:
+        print('Sent!')
+        mes_json = json.dumps(mes)
+        mes_length = len(mes_json)
+        s.send('{:10d}'.format(mes_length).encode())
+        s.send(mes_json.encode())
+        time.sleep(1)
+
 
 if __name__ == '__main__':
     c = socket(AF_INET, SOCK_STREAM)
