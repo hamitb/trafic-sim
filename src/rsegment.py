@@ -1,5 +1,22 @@
 import threading
 
+def fcrowd(v, l, d):
+    '''
+    returns a speed factor based on how crowded road segment is
+    it returns fmax for all values in [0,cmin]. fmin for all values > cmax
+    all intermediate values are linearly interpolated
+    '''
+    fmin, fmax = 0.05, 1.0
+    cmin, cmax = 10, 100
+    c = v / (l * d)
+    # vehicle per unit distance in a lane
+    if c <= cmin:
+        return fmax
+    elif c < cmax:
+        return fmax - (c - cmin) * (fmax - fmin) / (cmax - cmin)
+    else:
+        return fmin
+
 
 class Vehicle(object):
     '''
@@ -46,7 +63,7 @@ class Vehicle(object):
                 self.completed_segment_length += segment.edge.length
         else:
             self.finish_path = True
-            self.completed_segment_lcength = 0
+            self.completed_segment_length = 0
             for segment in self.path[:self.current_segment_index]:
                 self.completed_segment_length += segment.edge.length
 
@@ -118,32 +135,32 @@ class Vehicle(object):
 
         return move_vector
 
+    def stats(self):
+        return {
+            'id': self.vhcl_id,
+            'clock': self.clock,
+            'c_start_x': self.current_segment.edge.start_node.x,
+            'c_start_y': self.current_segment.edge.start_node.y,
+            'x': self.x,
+            'y': self.y,
+            'c_end_x': self.current_segment.edge.end_node.x,
+            'c_end_y': self.current_segment.edge.end_node.y,
+            'c_segment': self.current_segment_index + 1,
+            's_count': self.segment_count,
+            'completed_len': self.cur_completed_length,
+            'total_len': self.total_path_length,
+        }
 
-def fcrowd(v, l, d):
-    '''
-    returns a speed factor based on how crowded road segment is
-    it returns fmax for all values in [0,cmin]. fmin for all values > cmax
-    all intermediate values are linearly interpolated
-    '''
-    fmin, fmax = 0.05, 1.0
-    cmin, cmax = 10, 100
-    c = v / (l * d)
-    # vehicle per unit distance in a lane
-    if c <= cmin:
-        return fmax
-    elif c < cmax:
-        return fmax - (c - cmin) * (fmax - fmin) / (cmax - cmin)
-    else:
-        return fmin
 
 
 class Rsegment(object):
-    def __init__(self, edge):
+    def __init__(self, edge, sim):
         '''
         construct a segment with floating point length and
         number of lanes from 1 to 3. edge is the edge information
         in the Map
         '''
+        self.sim = sim
         self.length = edge.length
         self.edge = edge
         self.rs_id = "rs_f{}_t{}".format(self.edge.start_node.node_id, self.edge.end_node.node_id)
@@ -154,6 +171,8 @@ class Rsegment(object):
         self.segment_thread.start()
         self.completed = False
         self.terminated = False
+
+        self.sim.check()
 
     def insert_vehicle(self, vehicle):
         '''
@@ -182,10 +201,13 @@ class Rsegment(object):
                 break
             for vhcl in self.vehicles:
                 vhcl.increase_clock()
-                vhcl.move()
-                if vhcl.finish_cur_segment:
-                    vhcl.complete_segment()
-                    self.vehicles.remove(vhcl)
+                if not vhcl.finish_path:
+                    vhcl.move()
+                    if vhcl.finish_cur_segment:
+                        vhcl.complete_segment()
+                        if not vhcl.finish_path:
+                            self.vehicles.remove(vhcl)
+            self.sim.check()
             self.segment_clock.clear()
         return
 
@@ -214,16 +236,16 @@ class Rsegment(object):
         '''
         return self.get_vehicles_count() >= self.get_capacity()
 
-    def wait_capacity(self):
-        '''
-        wait for a new opening for capacity (in phase 2)
-        '''
-
     def get_stats(self):
         '''
         return statistics about the segment, max vehicles, average
         speed (for completed vehicles), current number of
         vehicles. (for phase 2)
             '''
+        stats = []
+        if not self.terminated:
+            for v in self.vehicles:
+                stats.append(v.stats())
 
-        return self.get_vehicles_count()
+        return stats
+

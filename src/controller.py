@@ -1,10 +1,11 @@
 from simulation import *
 
 class Controller(object):
-    def __init__(self):
+    def __init__(self, socket):
         self.map = Map()
         self.sim = Simulation()
         self.sim.set_map(self.map)
+        self.sim.set_socket(socket)
 
         self.methods = {
             # Add map methods
@@ -23,3 +24,6 @@ class Controller(object):
             'wait': self.sim.wait,
             'get_stats': self.sim.get_stats,
         }
+
+    def register_cb(self, f):
+        self.sim.register(f)

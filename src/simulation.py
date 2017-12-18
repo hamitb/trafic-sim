@@ -1,8 +1,9 @@
 import threading
 import time
 import numpy as np
-from map import *
+from map import Map
 from rsegment import *
+from observer import Observed
  
 class Generator(object):
     def __init__(self, gen_id, _map, period, number, source_list, target_list, sim, lock):
@@ -57,7 +58,7 @@ class Generator(object):
     def set_clock(self):
         while self.tick_on.wait():
             self.clock += 1
-            self.tick_on.clear()
+
 
             if self.terminated:
                 print("{} Terminated!".format(self.gen_id))
@@ -79,7 +80,12 @@ class Generator(object):
                     "{} Done!\n".format(self.gen_id)+ \
                     '\x1b[0m')
                     break
-            
+
+            if not self.gen_on.isSet():
+                self.sim.check()
+
+            self.tick_on.clear()
+
         
     def generate(self):
         for _ in range(self.number):
@@ -87,6 +93,10 @@ class Generator(object):
                 if self.terminated:
                     return
                 self.insert_new_vehicle()
+
+                if not self.tick_on.isSet():
+                    self.sim.check()
+
                 self.gen_on.clear()
         return
 
@@ -115,13 +125,14 @@ class Generator(object):
         self.created_vehicle_count += 1
         self.vehicles.append(vhcl)
 
-class Simulation(object):
+class Simulation(Observed):
     def __init__(self):
         '''
         Creates an empty simulation
         '''
         self.map = None
         self.sim_on = threading.Event()
+        self.notif_on = threading.Event()
         self.sim_thread = None
         self.generators = []
         self.next_gen_id = 0
@@ -132,6 +143,13 @@ class Simulation(object):
         self.sub_comps_terminated = False
         self.manual = True
         self.lock = threading.Lock()
+        self.check_lock = threading.Lock()
+        self.cur_tick_fin_count = 0
+        self.comp_count = 0
+        self.finished_comp_count = 0
+        self.stats = []
+
+        super().__init__()
     def set_map(self, map_object):
         '''
         set Map object as the map for the simulation
@@ -147,6 +165,8 @@ class Simulation(object):
         new_generator = Generator(gen_id, self.map, period, number, source_list, target_list, self, self.lock)
         self.generators.append(new_generator)
         self.next_gen_id += 1
+
+        self._update_comp_count()
         
     def get_generators(self):
         '''
@@ -161,6 +181,16 @@ class Simulation(object):
         insertion (getGenerators() list order)
         '''
         del self.generators[index]
+
+        self._update_comp_count()
+
+    def check(self):
+        with self.check_lock:
+            self.finished_comp_count += 1
+            if self.comp_count == self.finished_comp_count:
+                self.finished_comp_count = 0
+                self.send_notification()
+
     def start_simulation(self, tickperiod = 0):
         '''
         Start the simulation with each tick of clock lasts
@@ -183,7 +213,9 @@ class Simulation(object):
                   "Simulation Started !" +
                   '\x1b[0m')
             self.sim_thread = threading.Thread(target=self._simulation_thread, name="sim_thread" ,args=[tickperiod])
+            self.notif_thread = threading.Thread(target=self._notification_thread, name="notif_thread")
             self.sim_thread.start()
+            self.notif_thread.start()
         else:
             self.tick()        
 
@@ -194,6 +226,15 @@ class Simulation(object):
         
         self.completed = sim_completed
         return sim_completed
+
+    def send_notification(self):
+        self.notif_on.set()
+
+    def _notification_thread(self):
+        while not self.terminated and self.notif_on.wait():
+            self.stats = self.get_stats()
+            self.notify(self.socket)
+            self.notif_on.clear()
 
     def _simulation_thread(self, tickperiod):
         while self.sim_on.wait():
@@ -220,6 +261,9 @@ class Simulation(object):
               '\x1b[0m')
         return
 
+    def set_socket(self, socket):
+        self.socket = socket
+
     def edge_to_rsegment(self, path):
         rsegment_path = []
         for edge in path:
@@ -229,11 +273,17 @@ class Simulation(object):
             try:
                 rsegment_path.append(self.rsegments[key])
             except KeyError:
-                new_rs = Rsegment(edge)
+                new_rs = Rsegment(edge, self)
                 self.rsegments[key] = new_rs
                 rsegment_path.append(new_rs)
 
+        # Update component count
+        self._update_comp_count()
+
         return rsegment_path
+
+    def _update_comp_count(self):
+        self.comp_count = len(self.rsegments) + len(self.generators)
 
     def tick(self):
         '''
@@ -255,15 +305,15 @@ class Simulation(object):
                     rsegment.complete_segment()
 
         print('\x1b[6;30;42m' + "Tick #{}\n".format(self.clock) + '\x1b[0m')
-        # print("Tick #{}".format(self.clock))
         self.clock += 1
 
         for gen in self.generators:
             gen.get_tick()
+
         for key in list(self.rsegments):
             rsegment = self.rsegments[key]
             rsegment.get_tick()
-            
+
     def terminate(self):
         '''
         End the simulation.
@@ -271,6 +321,7 @@ class Simulation(object):
         self.terminated = True
         if not self.manual:
             self.sim_thread.join()
+            self.notif_thread.join()
         else:
             self.stop_gen_threads()
             self.stop_rsegment_threads()
@@ -294,6 +345,7 @@ class Simulation(object):
 
     def reset_simulation(self):
         self.sim_on.clear()
+        self.notif_on.clear()
         self.rsegments = dict()
         self.clock = 0
         self.completed = False
@@ -312,6 +364,7 @@ class Simulation(object):
             return self.completed
 
         self.sim_thread.join()
+        self.notif_thread.join()
         return
 
     def get_stats(self):
@@ -323,5 +376,11 @@ class Simulation(object):
         speed per segment. Road segment statistics need not to be
         complete in phase 1.
         '''
-        total_num_of_vhcls = sum([len(gen.vehicles) for gen in self.generators])
-        return total_num_of_vhcls
+        stats = []
+        for key, rs in self.rsegments.items():
+            stats += rs.get_stats()
+
+        return stats
+
+    def state(self):
+        return self.get_stats()

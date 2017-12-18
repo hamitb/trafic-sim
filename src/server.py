@@ -32,8 +32,9 @@ class Server(Thread):
         '''
 
         # Controller(Map + Simulation) of this connection
-        c = Controller()
+        c = Controller(s)
         c_methods = c.methods
+        c.register_cb(notify_client)
 
         # Receive the upcoming message's length as bytes object
         req_len_bin = s.recv(10)
@@ -55,6 +56,7 @@ class Server(Thread):
 
             printwc('yellow', "{} calls: {} with args:{} and kwargs:{}\n".format(peer, m_name, args, kwargs))
 
+
             # Call requested method
             f = c_methods[m_name]
             f(*args, **kwargs)
@@ -64,6 +66,13 @@ class Server(Thread):
 
         printwc('blue', "{} leaves\n".format(peer))
 
+def notify_client(socket, subj):
+    mes = subj.stats
+    mes_json = json.dumps(mes)
+    mes_length = len(mes_json)
+    socket.send('{:10d}'.format(mes_length).encode())
+    socket.send(mes_json.encode())
+    printwc('red', '{}: {}'.format(socket.getpeername(), subj.stats))
 
 if __name__ == '__main__':
     # Start server
