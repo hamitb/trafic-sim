@@ -62,7 +62,7 @@ class Generator(object):
             self.clock += 1
 
             if self.terminated:
-                print("{} Terminated!".format(self.gen_id))
+                # printwc('blue_bg',"{} Terminated!".format(self.gen_id))
                 self.sim.check()
                 self.gen_on.set()
                 break
@@ -79,9 +79,7 @@ class Generator(object):
                 
                 if self.completed:
                     self.sim.check()
-                    print('\x1b[5;37;44m' +
-                    "{} Done!\n".format(self.gen_id)+
-                    '\x1b[0m')
+                    # printwc('blue_bg',"{} Done!\n".format(self.gen_id))
                     break
 
             if not self.gen_on.isSet() or not self.gen_thread.isAlive():
@@ -122,9 +120,7 @@ class Generator(object):
 
         vhcl_id = "{}_vhcl{}".format(self.gen_id, self.created_vehicle_count)
         vhcl = Vehicle(rsegment_path, vhcl_id, self.sim.k_speed)
-        print('\x1b[6;37;44m' + \
-              "{}: New vehicle created!\n".format(vhcl_id)\
-              + '\x1b[0m')
+        # printwc('blue_bg', "{}: New vehicle created!\n".format(vhcl_id))
         self.created_vehicle_count += 1
         self.vehicles.append(vhcl)
 
@@ -146,13 +142,14 @@ class Simulation(Observed):
         self.terminated = False
         self.sub_comps_terminated = False
         self.manual = True
+        self.final_notif_send = False
         self.lock = threading.Lock()
         self.check_lock = threading.Lock()
         self.comp_count = 0
         self.finished_comp_count = 0
         self.stats = []
 
-        self.set_debug_level(['SimStat'])
+        self.set_debug_level(['CarStat'])
         super().__init__()
 
     def set_map(self, map_object):
@@ -215,9 +212,7 @@ class Simulation(Observed):
         if tickperiod:
             self.manual = False
             self.sim_on.set()
-            print('\x1b[5;30;42m' +
-                  "Simulation Started !" +
-                  '\x1b[0m')
+            # printwc('green_bg' ,"Simulation Started !")
             self.sim_thread = threading.Thread(target=self._simulation_thread, name="sim_thread" ,args=[tickperiod])
             self.notif_thread = threading.Thread(target=self._notification_thread, name="notif_thread")
             self.sim_thread.start()
@@ -234,7 +229,8 @@ class Simulation(Observed):
         return sim_completed
 
     def send_notification(self):
-        self.notif_on.set()
+        if not self.final_notif_send:
+            self.notif_on.set()
 
     def _notification_thread(self):
         while self.notif_on.wait():
@@ -267,9 +263,7 @@ class Simulation(Observed):
             else:
                 break
 
-        print('\x1b[5;30;41m' + \
-              "Simulation terminated !" +\
-              '\x1b[0m')
+        printwc('red', "Simulation terminated !")
         return
 
     def tick(self):
@@ -278,7 +272,8 @@ class Simulation(Observed):
         generated (methods are called) for each generator and
         simulation component.
         '''
-        print('\x1b[6;30;42m' + "Tick #{}\n".format(self.clock) + '\x1b[0m')
+        # printwc('green_bg', "Tick #{}".format(self.clock))
+        # print()
 
         for gen in self.generators:
             gen.get_tick()
@@ -355,6 +350,7 @@ class Simulation(Observed):
         self.completed = False
         self.terminated = False
         self.sub_comps_terminated = False
+        self.final_notif_send = False
         self.manual = True  
         for gen in self.generators:
             gen.reset_gen()
@@ -365,6 +361,9 @@ class Simulation(Observed):
             vhcls += gen.vehicles
 
         return vhcls
+
+    def get_all_rsegments(self):
+        return [rs for (k, rs) in self.rsegments.items()]
 
     def set_debug_level(self, debug_level):
         self.debug_level = debug_level+['SimReport']
@@ -434,6 +433,12 @@ class Simulation(Observed):
         completed = active_vhcls_count == 0 and remaining_vhcls_count == 0
 
         if completed or self.terminated:
-            stats['SimReport'] = "Simulation Completed"
+            vehicle_stats = [v.stats for v in vehicles]
+            rsegment_stats = [rs.stats for rs in self.get_all_rsegments()]
+            sim_stats = stats['SimStat']
 
+            stats['SimReport']['vehicles'] = vehicle_stats
+            stats['SimReport']['rsegments'] = rsegment_stats
+            stats['SimReport']['simulation'] = sim_stats
+            self.final_notif_send = True
         return stats

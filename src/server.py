@@ -16,6 +16,7 @@ class Server(Thread):
     def run(self):
         self.s.listen(1)
         try:
+            printwc('blue', 'Serving on {}'.format(self.s.getsockname()))
             while True:
                 ns, peer = self.s.accept()
                 t = Thread(target=self.rpc_service, args=(ns,))
@@ -71,17 +72,19 @@ def notify_client(socket, subj):
     mes = dict()
     debug_level = subj.debug_level
 
+    send_dl = []
     for dl in debug_level:
         current_dl = data[dl]
         if len(current_dl) != 0:
             mes[dl] = current_dl
+            send_dl.append(dl)
 
     if len(mes) != 0:
         mes_json = json.dumps(mes)
         mes_length = len(mes_json)
         socket.send('{:10d}'.format(mes_length).encode())
         socket.send(mes_json.encode())
-        printwc('green', 'Notification send to the address: {}'.format(socket.getpeername()))
+        printwc('green', 'Tick #{} of {}, send stats: {}\n'.format(subj.clock, socket.getpeername(), send_dl))
 
 if __name__ == '__main__':
     # Start server

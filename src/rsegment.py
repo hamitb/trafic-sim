@@ -1,4 +1,5 @@
 import threading
+from printwc import printwc
 
 def fcrowd(v, l, d):
     '''
@@ -88,15 +89,15 @@ class Vehicle(object):
             self.avg_speed = self.cur_completed_length / self.clock
             self.cur_segment_avg = self.len_to_seg_start / self.cur_segment_clock
 
-            print('\x1b[6;30;43m' +
-                  "{}: VehicleTime: {}, Position: ({:.2f}, {:.2f}) ==> ({:.2f}, {:.2f}) ==> ({:.2f}, {:.2f}),\n"
-                  "Path: {}/{}, Length: {:.2f}/{:.2f}\n".format(
-                      self.vhcl_id, self.clock, self.current_segment.edge.start_node.x,
-                      self.current_segment.edge.start_node.y,
-                      self.x, self.y, self.current_segment.edge.end_node.x, self.current_segment.edge.end_node.y,
-                      self.current_segment_index + 1, self.segment_count, self.cur_completed_length,
-                      self.total_path_length)
-                  + '\x1b[0m')
+            # printwc('yellow_bg',
+            #       "{}: VehicleTime: {}, Position: ({:.2f}, {:.2f}) ==> ({:.2f}, {:.2f}) ==> ({:.2f}, {:.2f}),\n"
+            #       "Path: {}/{}, Length: {:.2f}/{:.2f}\n".format(
+            #           self.vhcl_id, self.clock, self.current_segment.edge.start_node.x,
+            #           self.current_segment.edge.start_node.y,
+            #           self.x, self.y, self.current_segment.edge.end_node.x, self.current_segment.edge.end_node.y,
+            #           self.current_segment_index + 1, self.segment_count, self.cur_completed_length,
+            #           self.total_path_length)
+            #       )
 
             if self.is_segment_finish():
                 self.finish_cur_segment = True
@@ -150,8 +151,8 @@ class Vehicle(object):
 
         return move_vector
 
-    def stats(self):
-        return {
+    def get_stats(self):
+        self.stats = {
             'id': self.vhcl_id,
             'clock': self.clock,
             'speed': self.speed,
@@ -167,6 +168,7 @@ class Vehicle(object):
             'completed_len': self.cur_completed_length,
             'total_len': self.total_path_length,
         }
+        return self.stats
 
 
 
@@ -297,13 +299,13 @@ class Rsegment(object):
         }
         if not self.terminated:
             for v in self.vehicles:
-                stats['CarStat'].append(v.stats())
+                stats['CarStat'].append(v.get_stats())
 
                 if v.cur_completed_length == 0 or v.finish_cur_segment:
-                    stats['CarEnterExist'].append(v.stats())
+                    stats['CarEnterExist'].append(v.get_stats())
 
                 if v.cur_completed_length == 0 or v.finish_path:
-                    stats['CarStartFinish'].append(v.stats())
+                    stats['CarStartFinish'].append(v.get_stats())
 
             stats['EdgeStat']['id'] = self.rs_id
             stats['EdgeStat']['source'] = {'x': self.edge.start_node.x, 'y':self.edge.start_node.y}
@@ -312,5 +314,7 @@ class Rsegment(object):
             stats['EdgeStat']['active_cars'] = len([v.vhcl_id for v in self.vehicles if not v.finish_path])
             stats['EdgeStat']['cur_worst_speed'] = self.get_min_speed()
             stats['EdgeStat']['avg_speed'] = self.get_avg_speed()
+
+        self.stats = stats['EdgeStat']
         return stats
 

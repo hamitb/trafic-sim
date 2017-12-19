@@ -4,7 +4,7 @@ from threading import Thread
 from printwc import printwc
 import time
 
-def client_receive_service(s):
+def client_receive_service(s, color='yellow'):
     # Receive the upcoming message's length as bytes object
     peer = s.getpeername()
 
@@ -19,12 +19,12 @@ def client_receive_service(s):
         req_data = json.loads(req)
 
         # Handle rpc request
-        printwc('yellow', "Received: {}\n".format(json.dumps(req_data, indent=4)))
+        printwc(color, "Message from {}: {}\n".format(peer, json.dumps(req_data, indent=4)))
 
         # Wait for new rpc request
         req_len_bin = s.recv(10)
 
-def client_send_service(s):
+def client_send_service(s, debug_level=['CarStat']):
     messages = [
         {
             'method': 'load_map',
@@ -42,10 +42,16 @@ def client_send_service(s):
             'kwargs': {}
         },
         {
+            'method': 'set_debug_level',
+            'args': [debug_level],
+            'kwargs': {}
+        },
+        {
             'method': 'start_simulation',
             'args': [500],
             'kwargs': {}
         },
+
     ]
 
     for mes in messages:
@@ -61,9 +67,15 @@ def client_send_service(s):
 
 
 if __name__ == '__main__':
-    c = socket(AF_INET, SOCK_STREAM)
-    c.connect(('127.0.0.1', 20445))
-    c_thread = Thread(target=client_send_service, args=(c,))
-    r_thread = Thread(target=client_receive_service, args=(c,))
-    c_thread.start()
-    r_thread.start()
+    client_count = 3
+    colors = ['yellow', 'blue', 'red']
+    debug_levels = [['CarStat'], ['CarStat', 'EdgeStat'], ['CarEnterExist']]
+
+    clients = [socket(AF_INET, SOCK_STREAM) for i in range(client_count)]
+    for c in clients: c.connect(('127.0.0.1', 20445))
+
+    send_threads = [Thread(target=client_send_service, args=(clients[i],debug_levels[i])) for i in range(len(clients))]
+    receive_threads = [Thread(target=client_receive_service, args=(clients[i],colors[i])) for i in range(len(clients))]
+
+    for t in send_threads: t.start()
+    for t in receive_threads: t.start()
