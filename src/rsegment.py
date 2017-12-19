@@ -223,6 +223,7 @@ class Rsegment(object):
     def step_forward(self):
         while self.segment_clock.wait():
             if self.completed or self.terminated:
+                self.sim.check()
                 self.segment_clock.clear()
                 break
             for vhcl in self.vehicles:

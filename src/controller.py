@@ -23,6 +23,7 @@ class Controller(object):
             'tick': self.sim.tick,
             'wait': self.sim.wait,
             'get_stats': self.sim.get_stats,
+            'set_debug_level': self.sim.set_debug_level,
         }
 
     def register_cb(self, f):

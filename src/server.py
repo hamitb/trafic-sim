@@ -67,12 +67,21 @@ class Server(Thread):
         printwc('blue', "{} leaves\n".format(peer))
 
 def notify_client(socket, subj):
-    mes = subj.stats
-    mes_json = json.dumps(mes)
-    mes_length = len(mes_json)
-    socket.send('{:10d}'.format(mes_length).encode())
-    socket.send(mes_json.encode())
-    printwc('red', '{}: {}'.format(socket.getpeername(), subj.stats))
+    data = subj.stats
+    mes = dict()
+    debug_level = subj.debug_level
+
+    for dl in debug_level:
+        current_dl = data[dl]
+        if len(current_dl) != 0:
+            mes[dl] = current_dl
+
+    if len(mes) != 0:
+        mes_json = json.dumps(mes)
+        mes_length = len(mes_json)
+        socket.send('{:10d}'.format(mes_length).encode())
+        socket.send(mes_json.encode())
+        printwc('green', 'Notification send to the address: {}'.format(socket.getpeername()))
 
 if __name__ == '__main__':
     # Start server

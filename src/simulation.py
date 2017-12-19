@@ -37,6 +37,8 @@ class Generator(object):
 
     def get_tick(self):
         self.tick_on.set()
+        if not self.clock_thread.isAlive():
+            self.sim.check()
 
     def reset_gen(self):
         self.vehicles = []
@@ -59,9 +61,9 @@ class Generator(object):
         while self.tick_on.wait():
             self.clock += 1
 
-
             if self.terminated:
                 print("{} Terminated!".format(self.gen_id))
+                self.sim.check()
                 self.gen_on.set()
                 break
             
@@ -76,12 +78,13 @@ class Generator(object):
                 self.completed = is_completed
                 
                 if self.completed:
-                    print('\x1b[5;37;44m' + \
-                    "{} Done!\n".format(self.gen_id)+ \
+                    self.sim.check()
+                    print('\x1b[5;37;44m' +
+                    "{} Done!\n".format(self.gen_id)+
                     '\x1b[0m')
                     break
 
-            if not self.gen_on.isSet():
+            if not self.gen_on.isSet() or not self.gen_thread.isAlive():
                 self.sim.check()
 
             self.tick_on.clear()
@@ -149,6 +152,7 @@ class Simulation(Observed):
         self.finished_comp_count = 0
         self.stats = []
 
+        self.set_debug_level(['SimStat'])
         super().__init__()
 
     def set_map(self, map_object):
@@ -221,7 +225,7 @@ class Simulation(Observed):
         else:
             self.tick()        
 
-    def sim_completed(self):
+    def check_sim_completed(self):
         sim_completed = True
         for gen in self.generators:
             sim_completed = sim_completed and gen.completed
@@ -232,37 +236,63 @@ class Simulation(Observed):
     def send_notification(self):
         self.notif_on.set()
 
-
     def _notification_thread(self):
-        while not self.terminated and self.notif_on.wait():
+        while self.notif_on.wait():
             self.stats = self.get_stats()
             self.notify(self.socket)
             self.notif_on.clear()
 
     def _simulation_thread(self, tickperiod):
-        while self.sim_on.wait():
+        while 1:
             time.sleep(tickperiod * 1e-3)
-            
-            if self.sim_completed() or self.terminated:
-                self.sim_on.clear()
+
+            self.check_sim_completed()
+
+            if self.terminated:
                 if not self.sub_comps_terminated:
                     for gen in self.generators:
                         if not gen.completed:
                             gen.terminate()
                             gen.get_tick()
-                    for _,rsegment in self.rsegments.items():
+                    for _, rsegment in self.rsegments.items():
                         rsegment.complete_segment()
                         rsegment.get_tick()
                     self.sub_comps_terminated = True
                     self.manual = True
+                self.send_notification()
                 break
 
-            self.tick()
-        
+            if not self.completed:
+                self.tick()
+            else:
+                break
+
         print('\x1b[5;30;41m' + \
               "Simulation terminated !" +\
               '\x1b[0m')
         return
+
+    def tick(self):
+        '''
+        Explicit advance of simulation. tick() signal is
+        generated (methods are called) for each generator and
+        simulation component.
+        '''
+        print('\x1b[6;30;42m' + "Tick #{}\n".format(self.clock) + '\x1b[0m')
+
+        for gen in self.generators:
+            gen.get_tick()
+
+        for key, rsegment in self.rsegments.items():
+            rsegment.get_tick()
+
+
+        if not self.completed:
+            for gen in self.generators:
+                if gen.thread_status() is False and not gen.completed:
+                    gen.start_threads()
+
+        self.clock += 1
 
     def set_socket(self, socket):
         self.socket = socket
@@ -287,35 +317,6 @@ class Simulation(Observed):
 
     def _update_comp_count(self):
         self.comp_count = len(self.rsegments) + len(self.generators)
-
-    def tick(self):
-        '''
-        Explicit advance of simulation. tick() signal is
-        generated (methods are called) for each generator and
-        simulation component.
-        '''
-        if not self.completed:
-            for gen in self.generators:
-                if gen.thread_status() is False and not gen.completed:
-                    gen.start_threads()
-
-        if self.sim_completed() or self.terminated:
-            if not self.sub_comps_terminated:
-                for gen in self.generators:
-                    if not gen.completed:
-                        gen.terminate()
-                for _,rsegment in self.rsegments.items():
-                    rsegment.complete_segment()
-
-        print('\x1b[6;30;42m' + "Tick #{}\n".format(self.clock) + '\x1b[0m')
-        self.clock += 1
-
-        for gen in self.generators:
-            gen.get_tick()
-
-        for key in list(self.rsegments):
-            rsegment = self.rsegments[key]
-            rsegment.get_tick()
 
     def terminate(self):
         '''
@@ -364,7 +365,10 @@ class Simulation(Observed):
             vhcls += gen.vehicles
 
         return vhcls
-    
+
+    def set_debug_level(self, debug_level):
+        self.debug_level = debug_level+['SimReport']
+
     def wait(self):
         '''
         Wait for the end of simulation. If manual tick it returns
@@ -405,6 +409,7 @@ class Simulation(Observed):
         active_vhcls = [v for v in vehicles if not v.finish_path]
         finished_vhcls = [v for v in vehicles if v.finish_path]
 
+
         avg_speed_active = 0
         avg_speed_finished = 0
 
@@ -416,13 +421,19 @@ class Simulation(Observed):
             speeds = [v.speed for v in finished_vhcls]
             avg_speed_finished = sum(speeds) / len(speeds)
 
-        stats['SimStat']['active_vhcl_count'] = len(active_vhcls)
-        stats['SimStat']['finished_vhcl_count'] = len(finished_vhcls)
-        stats['SimStat']['remaning_vhcl_count'] = sum([g.number-g.created_vehicle_count for g in self.generators])
+        active_vhcls_count = len(active_vhcls)
+        remaining_vhcls_count = sum([g.number-g.created_vehicle_count for g in self.generators])
+        finished_vhcls_count = len(finished_vhcls)
+
+        stats['SimStat']['active_vhcl_count'] = active_vhcls_count
+        stats['SimStat']['finished_vhcl_count'] = finished_vhcls_count
+        stats['SimStat']['remaining_vhcl_count'] = remaining_vhcls_count
         stats['SimStat']['avg_speed_active'] = avg_speed_active
         stats['SimStat']['avg_speed_finished'] = avg_speed_finished
 
-        if self.completed or self.terminated:
+        completed = active_vhcls_count == 0 and remaining_vhcls_count == 0
+
+        if completed or self.terminated:
             stats['SimReport'] = "Simulation Completed"
 
         return stats
