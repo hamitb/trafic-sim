@@ -3,7 +3,8 @@ from socket import *
 from threading import Thread
 from printwc import printwc
 import time
-def client_receive(s):
+
+def client_receive_service(s):
     # Receive the upcoming message's length as bytes object
     peer = s.getpeername()
 
@@ -18,12 +19,12 @@ def client_receive(s):
         req_data = json.loads(req)
 
         # Handle rpc request
-        printwc('yellow', "Received: {}\n".format(req_data))
+        printwc('yellow', "Received: {}\n".format(json.dumps(req_data, indent=4)))
 
         # Wait for new rpc request
         req_len_bin = s.recv(10)
 
-def client_service(s):
+def client_send_service(s):
     messages = [
         {
             'method': 'load_map',
@@ -48,7 +49,8 @@ def client_service(s):
     ]
 
     for mes in messages:
-        print('Sent!')
+        printwc('blue', '{}: Send method: {} with args:{} and kwargs:{}'.
+              format(s.getsockname(), mes['method'], mes['args'], mes['kwargs']))
         mes_json = json.dumps(mes)
         mes_length = len(mes_json)
         s.send('{:10d}'.format(mes_length).encode())
@@ -61,7 +63,7 @@ def client_service(s):
 if __name__ == '__main__':
     c = socket(AF_INET, SOCK_STREAM)
     c.connect(('127.0.0.1', 20445))
-    c_thread = Thread(target=client_service, args=(c,))
-    r_thread = Thread(target=client_receive, args=(c,))
+    c_thread = Thread(target=client_send_service, args=(c,))
+    r_thread = Thread(target=client_receive_service, args=(c,))
     c_thread.start()
     r_thread.start()

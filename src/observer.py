@@ -14,6 +14,3 @@ class Observed(object):
     def notify(self, socket):
         for f in self._observers:
             f(socket, self)
-
-    def state(self):
-        pass

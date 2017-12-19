@@ -114,11 +114,11 @@ class Generator(object):
             start_node, end_node = self.get_start_end_nodes()
             edge_path = self.map.get_shortest_path(start_node, end_node)
 
-        self.lock.acquire()
-        rsegment_path = self.sim.edge_to_rsegment(edge_path)
-        self.lock.release()
+        with self.lock:
+            rsegment_path = self.sim.edge_to_rsegment(edge_path)
+
         vhcl_id = "{}_vhcl{}".format(self.gen_id, self.created_vehicle_count)
-        vhcl = Vehicle(rsegment_path, vhcl_id)
+        vhcl = Vehicle(rsegment_path, vhcl_id, self.sim.k_speed)
         print('\x1b[6;37;44m' + \
               "{}: New vehicle created!\n".format(vhcl_id)\
               + '\x1b[0m')
@@ -126,7 +126,7 @@ class Generator(object):
         self.vehicles.append(vhcl)
 
 class Simulation(Observed):
-    def __init__(self):
+    def __init__(self, k_speed=60.0):
         '''
         Creates an empty simulation
         '''
@@ -135,6 +135,7 @@ class Simulation(Observed):
         self.notif_on = threading.Event()
         self.sim_thread = None
         self.generators = []
+        self.k_speed = k_speed
         self.next_gen_id = 0
         self.rsegments = dict()
         self.clock = 0
@@ -144,17 +145,18 @@ class Simulation(Observed):
         self.manual = True
         self.lock = threading.Lock()
         self.check_lock = threading.Lock()
-        self.cur_tick_fin_count = 0
         self.comp_count = 0
         self.finished_comp_count = 0
         self.stats = []
 
         super().__init__()
+
     def set_map(self, map_object):
         '''
         set Map object as the map for the simulation
         '''
         self.map = map_object
+
     def add_generator(self, source_list, target_list, period, number):
         ''' 
         Add a traffic generator. Generator generates a vehicle
@@ -229,6 +231,7 @@ class Simulation(Observed):
 
     def send_notification(self):
         self.notif_on.set()
+
 
     def _notification_thread(self):
         while not self.terminated and self.notif_on.wait():
@@ -354,6 +357,13 @@ class Simulation(Observed):
         self.manual = True  
         for gen in self.generators:
             gen.reset_gen()
+
+    def get_all_vhcls(self):
+        vhcls = []
+        for gen in self.generators:
+            vhcls += gen.vehicles
+
+        return vhcls
     
     def wait(self):
         '''
@@ -376,11 +386,43 @@ class Simulation(Observed):
         speed per segment. Road segment statistics need not to be
         complete in phase 1.
         '''
-        stats = []
+        stats = {
+            'CarStat': [],
+            'CarEnterExist': [],
+            'CarStartFinish': [],
+            'EdgeStat': [],
+            'SimStat': {},
+            'SimReport': {},
+        }
         for key, rs in self.rsegments.items():
-            stats += rs.get_stats()
+            rs_stats = rs.get_stats()
+            stats['CarStat'] += rs_stats['CarStat']
+            stats['CarEnterExist'] += rs_stats['CarEnterExist']
+            stats['CarStartFinish'] += rs_stats['CarStartFinish']
+            stats['EdgeStat'].append(rs_stats['EdgeStat'])
+
+        vehicles = self.get_all_vhcls()
+        active_vhcls = [v for v in vehicles if not v.finish_path]
+        finished_vhcls = [v for v in vehicles if v.finish_path]
+
+        avg_speed_active = 0
+        avg_speed_finished = 0
+
+        if active_vhcls != []:
+            speeds = [v.speed for v in active_vhcls]
+            avg_speed_active = sum(speeds) / len(speeds)
+
+        if finished_vhcls != []:
+            speeds = [v.speed for v in finished_vhcls]
+            avg_speed_finished = sum(speeds) / len(speeds)
+
+        stats['SimStat']['active_vhcl_count'] = len(active_vhcls)
+        stats['SimStat']['finished_vhcl_count'] = len(finished_vhcls)
+        stats['SimStat']['remaning_vhcl_count'] = sum([g.number-g.created_vehicle_count for g in self.generators])
+        stats['SimStat']['avg_speed_active'] = avg_speed_active
+        stats['SimStat']['avg_speed_finished'] = avg_speed_finished
+
+        if self.completed or self.terminated:
+            stats['SimReport'] = "Simulation Completed"
 
         return stats
-
-    def state(self):
-        return self.get_stats()
