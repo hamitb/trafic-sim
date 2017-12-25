@@ -1,7 +1,7 @@
 from peewee import *
 from datetime import datetime
 
-db = SqliteDatabase("map.db", pragmas=(('foreign_keys', 'on'),))
+db = SqliteDatabase("db.sqlite3", pragmas=(('foreign_keys', 'on'),))
 
 class BaseModel(Model):
     class Meta:
