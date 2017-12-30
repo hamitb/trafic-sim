@@ -1,0 +1,62 @@
+<html>
+	<h1>User Map Simulation Interface</h1>
+<br>
+
+<form method="post" >{% csrf_token %}
+    <label for="Map_id">Map  id: </label>
+    <input id="Map_id" type="text" name="Map_id" value="{{ Map_id }}">
+    
+    <input type="submit" value="Load Map">
+
+</form>
+
+<br><br>
+
+<form method="post" >{% csrf_token %}
+    Adding Node<br>
+    <label for="Node_id">Node  id: </label>
+    <input id="Node_id" type="text" name="Node_id" value="{{ Node_id }}">
+    <label for="Node_x">Node x: </label>
+    <input id="Node_x" type="text" name="Node_x" value="{{ Node_x }}">
+    <label for="Node_y">Node  y: </label>
+    <input id="Node_y" type="text" name="Node_y" value="{{ Node_y }}">
+    <input type="submit" value="Add Node">
+</form>
+<br><br>
+<form method="post" >{% csrf_token %}
+    Adding Edge<br>
+    <label for="Edge_id">Edge  id: </label>
+    <input id="Edge_id" type="text" name="Edge_id" value="{{ Edge_id }}">
+    <label for="Edge_from">Edge from: </label>
+    <input id="Edge_from" type="text" name="Edge_from" value="{{ Edge_from }}">
+    <label for="Edge_to">Edge  to: </label>
+    <input id="Edge_to" type="text" name="Edge_to" value="{{ Edge_to }}">
+    <input type="submit" value="Add Edge">
+</form>
+<form method="post" >{% csrf_token %}
+    <label for="Gen_no">Number of Generators: </label>
+    <input id="Gen_no" type="text" name="Gen_no" value="{{ Gen_no }}">
+    
+    <input type="submit" value="Add Generator">
+    
+</form>
+<form method="post" >{% csrf_token %}
+   <label for="Debug_level">Debug Level: </label><br>
+   <input type="radio" name="gender" value="male" checked> Car Stats
+   <input type="radio" name="gender" value="male" checked> Edge Stat
+   <input type="radio" name="gender" value="male" checked> CarEnterExist
+   <input type="submit" value="Set Debug Level">
+</form><br><br>
+
+<form action="simulation">
+        <label for="Tickperiod">Tickperiod of Simulation : </label>
+        <input id="Tickperiod" type="text" name="Tickperiod" value="{{ Tickperiod }}">
+        <input type="submit" value="START SIMULATION">
+</form>
+
+
+
+
+
+<html>
+

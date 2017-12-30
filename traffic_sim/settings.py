@@ -54,7 +54,7 @@ ROOT_URLCONF = 'traffic_sim.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': ['traffic_sim/templates',],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
