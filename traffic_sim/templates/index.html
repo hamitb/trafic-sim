@@ -42,13 +42,13 @@
 </form>
 <form method="post" >{% csrf_token %}
    <label for="Debug_level">Debug Level: </label><br>
-   <input type="radio" name="gender" value="male" checked> Car Stats
-   <input type="radio" name="gender" value="male" checked> Edge Stat
-   <input type="radio" name="gender" value="male" checked> CarEnterExist
+   <input type="radio" name="Debug_level" value="CarStats" checked> Car Stats
+   <input type="radio" name="Debug_level" value="EdgeStat" checked> Edge Stat
+   <input type="radio" name="Debug_level" value="CarEnterExit" checked> CarEnterExit
    <input type="submit" value="Set Debug Level">
 </form><br><br>
 
-<form action="simulation">
+<form  action="simulation">{% csrf_token %}
         <label for="Tickperiod">Tickperiod of Simulation : </label>
         <input id="Tickperiod" type="text" name="Tickperiod" value="{{ Tickperiod }}">
         <input type="submit" value="START SIMULATION">
