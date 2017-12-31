@@ -34,8 +34,14 @@ def index(request):
 		print ("Generator Number : {} ".format(request.POST['Gen_no'] ) )
 
 	
-	if 'Debug_level' in request.POST.keys():
-		print ("Debug_level :{} ".format(request.POST['Debug_level'] ) )
+	if 'CarStats' in request.POST.keys():
+		print ("Debug_level :{} ".format(request.POST['CarStats'] ) )
+
+	if 'EdgeStats' in request.POST.keys():
+		print ("Debug_level :{} ".format(request.POST['EdgeStats'] ) )
+
+	if 'CarEnterExits' in request.POST.keys():
+		print ("Debug_level :{} ".format(request.POST['CarEnterExits'] ) )
 
 	return render(request, 'index.html', {})
 

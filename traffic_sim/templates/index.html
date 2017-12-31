@@ -42,9 +42,9 @@
 </form>
 <form method="post" >{% csrf_token %}
    <label for="Debug_level">Debug Level: </label><br>
-   <input type="radio" name="Debug_level" value="CarStats" checked> Car Stats
-   <input type="radio" name="Debug_level" value="EdgeStat" checked> Edge Stat
-   <input type="radio" name="Debug_level" value="CarEnterExit" checked> CarEnterExit
+   <input type="checkbox" name="CarStats" value="CarStats" > Car Stats
+   <input type="checkbox" name="EdgeStats" value="EdgeStats" > Edge Stats
+   <input type="checkbox" name="CarEnterExits" value="CarEnterExits" > CarEnterExits
    <input type="submit" value="Set Debug Level">
 </form><br><br>
 
