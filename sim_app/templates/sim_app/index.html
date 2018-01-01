@@ -3,40 +3,57 @@
 <br>
 
 <form method="post" >{% csrf_token %}
-    <label for="Map_id">Map  id: </label>
-    <input id="Map_id" type="text" name="Map_id" value="{{ Map_id }}">
-    
+    <label for="Load_Map_id">Map  id: </label>
+    <input id="Load_Map_id" type="text" name="Load_Map_id" value="{{ Load_Map_id }}">
     <input type="submit" value="Load Map">
-
 </form>
 
+<form method="post" >{% csrf_token %}
+    <label for="Save_Map_id">Map  id: </label>
+    <input id="Save_Map_id" type="text" name="Save_Map_id" value="{{ Save_Map_id }}">
+    <input type="submit" value="Save Map">
+</form>
 <br><br>
 
 <form method="post" >{% csrf_token %}
     Adding Node<br>
-    <label for="Node_id">Node  id: </label>
-    <input id="Node_id" type="text" name="Node_id" value="{{ Node_id }}">
-    <label for="Node_x">Node x: </label>
-    <input id="Node_x" type="text" name="Node_x" value="{{ Node_x }}">
-    <label for="Node_y">Node  y: </label>
-    <input id="Node_y" type="text" name="Node_y" value="{{ Node_y }}">
+    <label for="Add_Node_id">Node  id: </label>
+    <input id="Add_Node_id" type="text" name="Add_Node_id" value="{{ Add_Node_id }}">
+    <label for="Add_Node_x">Node x: </label>
+    <input id="Add_Node_x" type="text" name="Add_Node_x" value="{{ Add_Node_x }}">
+    <label for="Add_Node_y">Node  y: </label>
+    <input id="Add_Node_y" type="text" name="Add_Node_y" value="{{ Add_Node_y }}">
     <input type="submit" value="Add Node">
 </form>
+<form method="post" >{% csrf_token %}
+    Deleting Node<br>
+    <label for="Del_Node_id">Node  id: </label>
+    <input id="Del_Node_id" type="text" name="Del_Node_id" value="{{ Del_Node_id }}">
+    <input type="submit" value="Delete Node">
+</form>
+
 <br><br>
 <form method="post" >{% csrf_token %}
     Adding Edge<br>
-    <label for="Edge_id">Edge  id: </label>
-    <input id="Edge_id" type="text" name="Edge_id" value="{{ Edge_id }}">
-    <label for="Edge_from">Edge from: </label>
-    <input id="Edge_from" type="text" name="Edge_from" value="{{ Edge_from }}">
-    <label for="Edge_to">Edge  to: </label>
-    <input id="Edge_to" type="text" name="Edge_to" value="{{ Edge_to }}">
+    <label for="Add_Edge_from">Edge from: </label>
+    <input id="Add_Edge_from" type="text" name="Add_Edge_from" value="{{ Add_Edge_from }}">
+    <label for="Add_Edge_to">Edge  to: </label>
+    <input id="Add_Edge_to" type="text" name="Add_Edge_to" value="{{ Add_Edge_to }}">
     <input type="submit" value="Add Edge">
+</form>
+<form method="post" >{% csrf_token %}
+    Deleting Edge<br>
+    <label for="Del_Edge_from">Edge from: </label>
+    <input id="Del_Edge_from" type="text" name="Del_Edge_from" value="{{ Del_Edge_from }}">
+    <label for="Del_Edge_to">Edge  to: </label>
+    <input id="Del_Edge_to" type="text" name="Del_Edge_to" value="{{ Del_Edge_to }}">
+    <input type="submit" value="Deleting Edge">
 </form>
 <form method="post" >{% csrf_token %}
     <label for="Gen_no">Number of Generators: </label>
     <input id="Gen_no" type="text" name="Gen_no" value="{{ Gen_no }}">
-    
+    <label for="Gen_period">Period of Generators: </label>
+    <input id="Gen_period" type="text" name="Gen_period" value="{{ Gen_period }}"> 
     <input type="submit" value="Add Generator">
     
 </form>
@@ -49,7 +66,7 @@
 </form><br><br>
 
 <form  action="simulation">{% csrf_token %}
-        <label for="Tick    period">Tickperiod of Simulation : </label>
+        <label for="Tickperiod">Tickperiod of Simulation : </label>
         <input id="Tickperiod" type="text" name="Tickperiod" value="{{ Tickperiod }}">
         <input type="submit" value="START SIMULATION">
 </form>
