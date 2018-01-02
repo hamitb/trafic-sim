@@ -1,13 +1,16 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
+from django.http import HttpResponseRedirect
+from django.urls import reverse
+from util.server import rpc_service
 
 # Create your views here.
 def index(request):
-    if 'post_message' not in request.session:
-        request.session['post_message'] = request.get_host()
-
     context = {
-        'form_data': request.POST,
-        'post_message': request.session['post_message'],
+        'session_id': request.session.session_key,
     }
-
+    rpc_service(request.session.session_key, quick_start=True)
     return render(request, 'sim_app/index.html', context)
+
+def settings(request, component):
+
+    return HttpResponseRedirect(reverse('sim_app:index'))

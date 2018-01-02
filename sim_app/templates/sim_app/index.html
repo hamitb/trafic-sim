@@ -1,51 +1,56 @@
+{% load static%}
+<script src="{% static 'sim_app/js/app.js' %}"></script>
 <h1>User Map Simulation Interface</h1>
-<h3>Messages:{{ post_message }}</h3>
+<p><em><span><b>current_session_id:&emsp;</b></span><span>{{ session_id }}</span></em></p>
 <div>
-    <form action="" method="post" >
+    <form action="{% url 'sim_app:settings' 'load_map' %}" method="post" name="load_map">
         {% csrf_token %}
-        <label for="Map_id">Map  id: </label>
-        <input id="map_id" type="text" name="map_id" value="{{ map_id }}">
+        <label for="map_name">Map Name: </label>
+        <input id="map_name" type="text" name="map_name" value="{{ map_name }}">
         <input type="submit" value="Load Map">
     </form>
 </div>
 
 <div>
-    <form method="post" >
+    <form action="{% url 'sim_app:settings' 'add_node' %}" method="post" name="add_node">
         {% csrf_token %}
         <legend>Add Node:</legend>
-        <label for="Node_id">Node  id: </label>
-        <input id="Node_id" type="text" name="Node_id" value="{{ Node_id }}">
-        <label for="Node_x">Node x: </label>
-        <input id="Node_x" type="text" name="Node_x" value="{{ Node_x }}">
-        <label for="Node_y">Node  y: </label>
-        <input id="Node_y" type="text" name="Node_y" value="{{ Node_y }}">
+        <label for="node_id">Node ID:</label>
+        <input id="node_id" type="text" name="node_id" value="{{ node_id }}">
+        <label for="node_x">Node X:</label>
+        <input id="node_x" type="text" name="node_x" value="{{ node_x }}">
+        <label for="node_y">Node Y: </label>
+        <input id="node_y" type="text" name="node_y" value="{{ node_y }}">
         <input type="submit" value="Add Node">
     </form>
 </div>
 
 <div>
-    <form method="post" >{% csrf_token %}
+    <form action="{% url 'sim_app:settings' 'add_edge' %}" method="post" name="add_edge">
+        {% csrf_token %}
         <legend>Add Edge:</legend>
-        <label for="Edge_id">Edge  id: </label>
-        <input id="Edge_id" type="text" name="Edge_id" value="{{ Edge_id }}">
-        <label for="Edge_from">Edge from: </label>
-        <input id="Edge_from" type="text" name="Edge_from" value="{{ Edge_from }}">
-        <label for="Edge_to">Edge  to: </label>
-        <input id="Edge_to" type="text" name="Edge_to" value="{{ Edge_to }}">
+        <label for="edge_id">Edge ID: </label>
+        <input id="edge_id" type="text" name="edge_id" value="{{ edge_id }}">
+        <label for="edge_from">from: </label>
+        <input id="edge_from" type="text" name="edge_from" value="{{ edge_from }}">
+        <label for="edge_to">to: </label>
+        <input id="edge_to" type="text" name="edge_to" value="{{ edge_to }}">
         <input type="submit" value="Add Edge">
     </form>
 </div>
 
 <div>
-    <form method="post" >{% csrf_token %}
-        <label for="Gen_no">Number of Generators: </label>
-        <input id="Gen_no" type="text" name="Gen_no" value="{{ Gen_no }}">
+    <form action="{% url 'sim_app:settings' 'add_gen' %}" method="post" name="add_gen">
+        {% csrf_token %}
+        <label for="gen_no">Number of Generators: </label>
+        <input id="gen_no" type="text" name="gen_no" value="{{ Gen_no }}">
         <input type="submit" value="Add Generator">
     </form>
 </div>
 
 <div>
-    <form method="post" >{% csrf_token %}
+    <form action="{% url 'sim_app:settings' 'debug_level' %}" method="post" name="debug_level">
+        {% csrf_token %}
         <legend for="debug_level">Debug Level: </legend>
         <input type="checkbox" name="debug_level" id="dl_car_stat" value="CarStats">
         <label for="dl_car_stat">Car Stat</label>
@@ -58,10 +63,10 @@
 </div>
 
 <div>
-    <form action="simulation">
+    <form action="{% url 'sim_app:settings' 'start_sim' %}" method="post" name="start_sim">
         {% csrf_token %}
-        <label for="Tick    period">Tickperiod of Simulation : </label>
-        <input id="Tickperiod" type="text" name="Tickperiod" value="{{ Tickperiod }}">
+        <label for="tick_period">Tick period of Simulation : </label>
+        <input id="tick_period" type="text" name="tick_period" value="{{ tick_period }}">
         <input type="submit" value="Start Simulation">
     </form>
 </div>

@@ -274,6 +274,8 @@ class Simulation(Observed):
         '''
         # printwc('green_bg', "Tick #{}".format(self.clock))
         # print()
+        if self.completed:
+            return
 
         for gen in self.generators:
             gen.get_tick()

@@ -10,9 +10,7 @@ def ws_connect(message):
     # Parse the query string
     rpc_service(message.reply_channel, quick_start=True)
 
+
 # Connected to websocket.receive
 def ws_message(message):
-    # message.reply_channel.send({
-    #     "text": message["text"],
-    # })
     rpc_call(message["text"], message.reply_channel)

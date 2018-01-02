@@ -13,4 +13,4 @@ class Observed(object):
 
     def notify(self, socket):
         for f in self._observers:
-            f(socket, self)
+            f(self, socket)
