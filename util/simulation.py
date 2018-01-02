@@ -1,9 +1,9 @@
 import threading
 import time
 import numpy as np
-from map import Map
-from rsegment import *
-from observer import Observed
+from .rsegment import *
+from .observer import Observed
+from .printwc import  printwc
  
 class Generator(object):
     def __init__(self, gen_id, _map, period, number, source_list, target_list, sim, lock):
@@ -281,6 +281,9 @@ class Simulation(Observed):
         for key, rsegment in self.rsegments.items():
             rsegment.get_tick()
 
+        if self.manual:
+            self.stats = self.get_stats()
+            self.notify(self.socket)
 
         if not self.completed:
             for gen in self.generators:

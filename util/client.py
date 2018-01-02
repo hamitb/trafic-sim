@@ -1,7 +1,7 @@
 import json
 from socket import *
 from threading import Thread
-from printwc import printwc
+from .printwc import printwc
 import time
 
 def client_receive_service(s, color='yellow'):

@@ -1,6 +1,6 @@
-from models import *
+from .models import *
 from math import sqrt
-from printwc import printwc
+from .printwc import printwc
 
 
 

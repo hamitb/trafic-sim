@@ -1,5 +1,5 @@
 import threading
-from printwc import printwc
+from .printwc import printwc
 
 def fcrowd(v, l, d):
     '''
