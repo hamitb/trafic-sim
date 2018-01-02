@@ -1,19 +1,14 @@
-<html>
-	<h1>User Map Simulation Interface</h1>
-<br>
-
-<form method="post" >{% csrf_token %}
+<h1>User Map Simulation Interface</h1>
+<form action="" method="post" >
+    {% csrf_token %}
     <label for="Map_id">Map  id: </label>
-    <input id="Map_id" type="text" name="Map_id" value="{{ Map_id }}">
-    
+    <input id="map_id" type="text" name="map_id" value="{{ map_id }}">
     <input type="submit" value="Load Map">
-
 </form>
 
-<br><br>
-
-<form method="post" >{% csrf_token %}
-    Adding Node<br>
+<form method="post" >
+    {% csrf_token %}
+    <legend>Add Node:</legend>
     <label for="Node_id">Node  id: </label>
     <input id="Node_id" type="text" name="Node_id" value="{{ Node_id }}">
     <label for="Node_x">Node x: </label>
@@ -22,9 +17,9 @@
     <input id="Node_y" type="text" name="Node_y" value="{{ Node_y }}">
     <input type="submit" value="Add Node">
 </form>
-<br><br>
+
 <form method="post" >{% csrf_token %}
-    Adding Edge<br>
+    <legend>Add Edge:</legend>
     <label for="Edge_id">Edge  id: </label>
     <input id="Edge_id" type="text" name="Edge_id" value="{{ Edge_id }}">
     <label for="Edge_from">Edge from: </label>
@@ -33,6 +28,7 @@
     <input id="Edge_to" type="text" name="Edge_to" value="{{ Edge_to }}">
     <input type="submit" value="Add Edge">
 </form>
+
 <form method="post" >{% csrf_token %}
     <label for="Gen_no">Number of Generators: </label>
     <input id="Gen_no" type="text" name="Gen_no" value="{{ Gen_no }}">
@@ -40,23 +36,26 @@
     <input type="submit" value="Add Generator">
     
 </form>
-<form method="post" >{% csrf_token %}
-   <label for="Debug_level">Debug Level: </label><br>
-   <input type="checkbox" name="CarStats" value="CarStats" > Car Stats
-   <input type="checkbox" name="EdgeStats" value="EdgeStats" > Edge Stats
-   <input type="checkbox" name="CarEnterExits" value="CarEnterExits" > CarEnterExits
-   <input type="submit" value="Set Debug Level">
-</form><br><br>
 
-<form  action="simulation">{% csrf_token %}
-        <label for="Tick    period">Tickperiod of Simulation : </label>
-        <input id="Tickperiod" type="text" name="Tickperiod" value="{{ Tickperiod }}">
-        <input type="submit" value="START SIMULATION">
+<form method="post" >{% csrf_token %}
+<legend for="debug_level">Debug Level: </legend>
+<input type="checkbox" name="debug_level" id="dl_car_stat" value="CarStats">
+<label for="dl_car_stat">Car Stat</label>
+<input type="checkbox" name="debug_level" value="EdgeStats">
+<label for="dl_edge_stat">Edge Stat</label>
+<input type="checkbox" name="debug_level" value="CarEnterExits">
+<label for="dl_enter_exit">Car Enter Exit</label>
+<input type="submit" value="Set Debug Level">
 </form>
 
+<form  action="simulation">{% csrf_token %}
+    <label for="Tick    period">Tickperiod of Simulation : </label>
+    <input id="Tickperiod" type="text" name="Tickperiod" value="{{ Tickperiod }}">
+    <input type="submit" value="Start Simulation">
+</form>
 
-
-
-
-<html>
-
+<ul>
+{% for key, value in form_data.items %}
+    <li>{{ key }}: {{ value }}</li>
+{% endfor %}
+</ul>
