@@ -1,7 +1,13 @@
-{% load static%}
+{% load static %}
 <script src="{% static 'sim_app/js/app.js' %}"></script>
 <h1>User Map Simulation Interface</h1>
-<p><em><span><b>current_session_id:&emsp;</b></span><span>{{ session_id }}</span></em></p>
+<p>
+    <em>
+        <span><b>last_notification:&emsp;</b></span>
+        {% if notification %} {{ notification }}
+        {% else %} no new notifications {% endif %}
+    </em>
+</p>
 <div>
     <form action="{% url 'sim_app:settings' 'load_map' %}" method="post" name="load_map">
         {% csrf_token %}
@@ -29,12 +35,14 @@
     <form action="{% url 'sim_app:settings' 'add_edge' %}" method="post" name="add_edge">
         {% csrf_token %}
         <legend>Add Edge:</legend>
-        <label for="edge_id">Edge ID: </label>
-        <input id="edge_id" type="text" name="edge_id" value="{{ edge_id }}">
         <label for="edge_from">from: </label>
         <input id="edge_from" type="text" name="edge_from" value="{{ edge_from }}">
         <label for="edge_to">to: </label>
         <input id="edge_to" type="text" name="edge_to" value="{{ edge_to }}">
+        <label for="edge_lanes">Lane Count: </label>
+        <input id="edge_lanes" type="text" name="edge_lanes" value="{{ edge_lanes }}">
+        <label for="edge_bidir">Is Bidirected?: </label>
+        <input id="edge_bidir" type="checkbox" name="edge_bidir" value="{{ edge_bidir }}">
         <input type="submit" value="Add Edge">
     </form>
 </div>
@@ -42,8 +50,15 @@
 <div>
     <form action="{% url 'sim_app:settings' 'add_gen' %}" method="post" name="add_gen">
         {% csrf_token %}
-        <label for="gen_no">Number of Generators: </label>
-        <input id="gen_no" type="text" name="gen_no" value="{{ Gen_no }}">
+        <legend for="debug_level">Add Generator: </legend>
+        <label for="gen_source">Comma seperated source list: </label>
+        <input id="gen_source" type="text" name="gen_source" value="{{ gen_source }}">
+        <label for="gen_target">Comma seperated target list: </label>
+        <input id="gen_target" type="text" name="gen_target" value="{{ gen_target }}">
+        <label for="gen_period">Period: </label>
+        <input id="gen_period" type="text" name="gen_period" value="{{ gen_period }}">
+        <label for="gen_count">Car count: </label>
+        <input id="gen_count" type="text" name="gen_count" value="{{ gen_count }}">
         <input type="submit" value="Add Generator">
     </form>
 </div>
@@ -52,27 +67,19 @@
     <form action="{% url 'sim_app:settings' 'debug_level' %}" method="post" name="debug_level">
         {% csrf_token %}
         <legend for="debug_level">Debug Level: </legend>
-        <input type="checkbox" name="debug_level" id="dl_car_stat" value="CarStats">
-        <label for="dl_car_stat">Car Stat</label>
-        <input type="checkbox" name="debug_level" value="EdgeStats">
-        <label for="dl_edge_stat">Edge Stat</label>
-        <input type="checkbox" name="debug_level" value="CarEnterExits">
-        <label for="dl_enter_exit">Car Enter Exit</label>
+        <input id="dl_car_stat" type="checkbox" name="debug_level[]" value="CarStats">
+        <label for="dl_car_stat">CarStat</label>
+        <input id="dl_edge_stat" type="checkbox" name="debug_level[]" value="EdgeStats">
+        <label for="dl_edge_stat">EdgeStat</label>
+        <input id="dl_enter_exit" type="checkbox" name="debug_level[]" value="CarEnterExits">
+        <label for="dl_enter_exit">CarEnterExit</label>
         <input type="submit" value="Set Debug Level">
     </form>
 </div>
 
 <div>
-    <form action="{% url 'sim_app:settings' 'start_sim' %}" method="post" name="start_sim">
+    <form action="{% url 'sim_app:simulation' %}" method="post" name="start_sim">
         {% csrf_token %}
-        <label for="tick_period">Tick period of Simulation : </label>
-        <input id="tick_period" type="text" name="tick_period" value="{{ tick_period }}">
-        <input type="submit" value="Start Simulation">
+        <input type="submit" value="Create Simulation">
     </form>
 </div>
-
-<ul>
-{% for key, value in form_data.items %}
-    <li>{{ key }}: {{ value }}</li> 
-{% endfor %}
-</ul>

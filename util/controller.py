@@ -4,8 +4,10 @@ from .printwc import printwc
 import json
 
 class Controller(object):
-    def __init__(self, socket=None, session_id='no-session'):
+    def __init__(self, socket=False, session_id='no-session'):
         self.sim = Simulation()
+        self.sim.session_id = session_id
+        self.sim.set_socket(False)
         self.session_id = session_id
         self.map = Map()
         self.sim.set_map(self.map)
@@ -22,6 +24,7 @@ class Controller(object):
             'get_generators': self.sim.get_generators,
             'del_generators': self.sim.del_generator,
             'start_simulation': self.sim.start_simulation,
+            'terminate_simulation': self.sim.terminate,
             'tick': self.sim.tick,
             'wait': self.sim.wait,
             'get_stats': self.sim.get_stats,
@@ -45,7 +48,7 @@ class Controller(object):
         args = mes['args']
         kwargs = mes['kwargs']
 
-        printwc('yellow', "{} called: {} with args:{} and kwargs:{}\n".format(self.socket.name, m_name, args, kwargs))
+        printwc('yellow', "{} called: {} with args:{} and kwargs:{}\n".format(self.session_id, m_name, args, kwargs))
 
         # Call requested method
         f = self.methods[m_name]

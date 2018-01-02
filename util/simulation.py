@@ -132,7 +132,6 @@ class Simulation(Observed):
         self.map = None
         self.sim_on = threading.Event()
         self.notif_on = threading.Event()
-        self.sim_thread = None
         self.generators = []
         self.k_speed = k_speed
         self.next_gen_id = 0
@@ -148,6 +147,9 @@ class Simulation(Observed):
         self.comp_count = 0
         self.finished_comp_count = 0
         self.stats = []
+
+        self.sim_thread = threading.Thread(target=self._simulation_thread, name="sim_thread" ,args=[])
+        self.notif_thread = threading.Thread(target=self._notification_thread, name="notif_thread")
 
         self.set_debug_level(['CarStat'])
         super().__init__()
@@ -213,8 +215,8 @@ class Simulation(Observed):
             self.manual = False
             self.sim_on.set()
             # printwc('green_bg' ,"Simulation Started !")
-            self.sim_thread = threading.Thread(target=self._simulation_thread, name="sim_thread" ,args=[tickperiod])
-            self.notif_thread = threading.Thread(target=self._notification_thread, name="notif_thread")
+            self.tickperiod = tickperiod
+            
             self.sim_thread.start()
             self.notif_thread.start()
         else:
@@ -234,13 +236,15 @@ class Simulation(Observed):
 
     def _notification_thread(self):
         while self.notif_on.wait():
+            if self.terminated:
+                break
             self.stats = self.get_stats()
             self.notify(self.socket)
             self.notif_on.clear()
 
-    def _simulation_thread(self, tickperiod):
+    def _simulation_thread(self):
         while 1:
-            time.sleep(tickperiod * 1e-3)
+            time.sleep(self.tickperiod * 1e-3)
 
             self.check_sim_completed()
 
@@ -261,6 +265,7 @@ class Simulation(Observed):
             if not self.completed:
                 self.tick()
             else:
+                self.reset_simulation()
                 break
 
         printwc('red', "Simulation terminated !")
@@ -325,6 +330,7 @@ class Simulation(Observed):
         self.terminated = True
         if not self.manual:
             self.sim_thread.join()
+            self.send_notification()
             self.notif_thread.join()
         else:
             self.stop_gen_threads()
@@ -337,15 +343,18 @@ class Simulation(Observed):
             gen_clock = gen.clock_thread
             gen.terminate()
             gen.get_tick()
-            gen_thread.join()
-            gen_clock.join()
+            if gen_thread.isAlive():
+                gen_thread.join()
+            if gen_clock.isAlive():
+                gen_clock.join()
 
     def stop_rsegment_threads(self):
         for _, rsegment in self.rsegments.items():
             segment_thread = rsegment.segment_thread
             rsegment.terminate_segment()
             rsegment.get_tick()
-            segment_thread.join()
+            if segment_thread.isAlive():
+                segment_thread.join()
 
     def reset_simulation(self):
         self.sim_on.clear()
@@ -357,6 +366,8 @@ class Simulation(Observed):
         self.sub_comps_terminated = False
         self.final_notif_send = False
         self.manual = True  
+        self.sim_thread = threading.Thread(target=self._simulation_thread, name="sim_thread" ,args=[])
+        self.notif_thread = threading.Thread(target=self._notification_thread, name="notif_thread")
         for gen in self.generators:
             gen.reset_gen()
 

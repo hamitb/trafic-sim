@@ -1,9 +1,24 @@
-<html>
-<h1> Simulation is started <h1>
-	<form method="post" >{% csrf_token %}
-		<input type="submit" value="Tick">
+{% load static %}
+<script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script>
+{% if error_message %}
+	<h3>{{ error_message }}</h3>
+{% else %}
+	<h1> Simulation is created </h1>
+	<form action="{% url 'sim_app:simulation' %}" method="post" >{% csrf_token %}
+		<input name="tick" type="submit" value="Tick" {{ manual|yesno:'disabled' }}>
 	</form>
-<form method="post" >{% csrf_token %}
-	<input type="submit" value="Terminate Simulation">
-</form>
-</html>
+	<form action="{% url 'sim_app:simulation' %}" method="post" >{% csrf_token %}
+		<label for="tick_period">Tick period: </label>
+		<input type="text" id="tick_period" name="tick_period">
+		<input name="start_sim" type="submit" value="Start Simulation">
+	</form>
+	<form action="{% url 'sim_app:simulation' %}" method="post" >{% csrf_token %}
+		<input name="terminate_sim" type="submit" value="Terminate Simulation">
+	</form>
+	<h2>Notifications:</h2>
+	{% if last_notification %} 
+		<code class="prettyprint">{{ last_notification }}</code>
+	{% else %}
+		<p><em>No notifications yet</em></p>
+	{% endif %}
+{% endif %}

@@ -6,16 +6,28 @@ from .controller import Controller
 
 pairs = dict()
 def set_controller(key, c):
-    pairs[key] = c
+    pairs[key] = {
+        'c': c,
+        'n': '',
+    }
+
+def is_sim_active_for(key):
+    return not (get_controller(key).sim.manual)
+
+def set_last_notification(key, notification):
+    pairs[key]['n'] = notification
+
+def get_last_notification(key):
+    return pairs[key]['n']
 
 def get_controller(key):
-    return pairs[key]
+    return pairs[key]['c']
 
 def session_exist_with(key):
     return key in pairs
 
 def rpc_call(req_string, session_id):
-    print("calling execute method")
+    printwc("green", "RPC Call from: {}".format(session_id))
     get_controller(session_id).execute_rpc(req_string)
 
 def rpc_service(session_id, reply_channel=None, quick_start=False):
@@ -39,7 +51,7 @@ def rpc_service(session_id, reply_channel=None, quick_start=False):
             c.quick_start()
     
 
-def notify_client(subj, reply_channel=None):
+def notify_client(subj, reply_channel=False):
     data = subj.stats
     mes = dict()
     debug_level = subj.debug_level
@@ -52,12 +64,14 @@ def notify_client(subj, reply_channel=None):
             send_dl.append(dl)
 
     if len(mes) != 0:
-        mes_json = json.dumps(mes)
+        mes_json = json.dumps(mes, indent=4)
 
-        if reply_channel is not None:
+        if reply_channel:
             reply_channel.send({
                 "text": mes_json
             })
+
+        set_last_notification(subj.session_id, mes_json)
 
         printwc('green', 'Tick #{}, send stats: {}\n'.format(subj.clock, send_dl))
 
