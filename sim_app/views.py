@@ -61,7 +61,7 @@ def settings(request, component):
         rpc_call(rpc_json, session_id)
         request.session['notification'] = notification.format(req['method'], req['args'])
 
-    return HttpResponseRedirect(reverse('sim_app:index'))
+    return redirect(reverse('sim_app:index'))
 
 def simulation(request):
     context = {}
