@@ -6,11 +6,16 @@ import json
 
 # Create your views here.
 def index(request):
+    if not request.session.session_key:
+        request.session.save()
+
     context = {
         'session_id': request.session.session_key,
         'notification': request.session['notification'] if 'notification' in request.session else '',
     }
+
     rpc_service(request.session.session_key, quick_start=True)
+
     return render(request, 'sim_app/index.html', context)
 
 def settings(request, component):
@@ -68,7 +73,7 @@ def simulation(request):
     session_id = request.session.session_key
     
     if not session_exist_with(session_id):
-        context['error_message'] = 'You should create a simulator first, go to settings page'
+        context['error_message'] = 'You should create a simulation first, go to settings page'
         return render(request, 'sim_app/simulation.html', context)
     
     if 'tick' in request.POST:

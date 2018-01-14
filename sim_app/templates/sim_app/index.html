@@ -1,6 +1,7 @@
-{% load static %}
-<script src="{% static 'sim_app/js/app.js' %}"></script>
-<h1>User Map Simulation Interface</h1>
+{% extends 'sim_app/base.html' %}
+
+{% block content %}
+
 <p>
     <em>
         <span><b>last_notification:&emsp;</b></span>
@@ -83,3 +84,5 @@
         <input type="submit" value="Create Simulation">
     </form>
 </div>
+
+{% endblock %}

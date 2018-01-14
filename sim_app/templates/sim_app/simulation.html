@@ -1,5 +1,7 @@
+{% extends 'sim_app/base.html' %}
 {% load static %}
-<script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script>
+
+{% block content %}
 {% if error_message %}
 	<h3>{{ error_message }}</h3>
 {% else %}
@@ -16,9 +18,14 @@
 		<input name="terminate_sim" type="submit" value="Terminate Simulation">
 	</form>
 	<h2>Notifications:</h2>
-	{% if last_notification %} 
+	{% if last_notification %}
 		<code class="prettyprint">{{ last_notification }}</code>
 	{% else %}
 		<p><em>No notifications yet</em></p>
 	{% endif %}
 {% endif %}
+
+<script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script>
+{% endblock %}
+
+
