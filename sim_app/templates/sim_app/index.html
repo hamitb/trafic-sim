@@ -1,82 +1,107 @@
 {% extends 'sim_app/base.html' %}
 
 {% block content %}
-
-<p>
-    <em>
-        <span><b>last_notification:&emsp;</b></span>
-        {% if notification %} {{ notification }}
-        {% else %} no new notifications {% endif %}
-    </em>
-</p>
 <div>
-    <form action="{% url 'sim_app:settings' 'load_map' %}" method="post" name="load_map">
-        {% csrf_token %}
-        <label for="map_name">Map Name: </label>
-        <input id="map_name" type="text" name="map_name" value="{{ map_name }}">
-        <input type="submit" value="Load Map">
-    </form>
+    <p>
+        <em>
+            <span><b>last_notification:&emsp;</b></span>
+            {% if notification %} {{ notification }}
+            {% else %} no new notifications {% endif %}
+        </em>
+    </p>
 </div>
 
 <div>
-    <form action="{% url 'sim_app:settings' 'add_node' %}" method="post" name="add_node">
-        {% csrf_token %}
-        <legend>Add Node:</legend>
-        <label for="node_id">Node ID:</label>
-        <input id="node_id" type="text" name="node_id" value="{{ node_id }}">
-        <label for="node_x">Node X:</label>
-        <input id="node_x" type="text" name="node_x" value="{{ node_x }}">
-        <label for="node_y">Node Y: </label>
-        <input id="node_y" type="text" name="node_y" value="{{ node_y }}">
-        <input type="submit" value="Add Node">
-    </form>
+    <ul class="nav nav-pills justify-content-center" id="settings-tab" role="tablist">
+        <li class="nav-item">
+            <a class="nav-link active" id="map-tab" data-toggle="pill" href="#map-settings">Map</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="node-tab" data-toggle="pill" href="#node-settings">Node</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="edge-tab" data-toggle="pill" href="#edge-settings">Edge</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="gen-tab" data-toggle="pill" href="#gen-settings">Generator</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="debug-tab" data-toggle="pill" href="#debug-settings">Debug Level</a>
+        </li>
+    </ul>
 </div>
 
-<div>
-    <form action="{% url 'sim_app:settings' 'add_edge' %}" method="post" name="add_edge">
-        {% csrf_token %}
-        <legend>Add Edge:</legend>
-        <label for="edge_from">from: </label>
-        <input id="edge_from" type="text" name="edge_from" value="{{ edge_from }}">
-        <label for="edge_to">to: </label>
-        <input id="edge_to" type="text" name="edge_to" value="{{ edge_to }}">
-        <label for="edge_lanes">Lane Count: </label>
-        <input id="edge_lanes" type="text" name="edge_lanes" value="{{ edge_lanes }}">
-        <label for="edge_bidir">Is Bidirected?: </label>
-        <input id="edge_bidir" type="checkbox" name="edge_bidir" value="{{ edge_bidir }}">
-        <input type="submit" value="Add Edge">
-    </form>
+<div class="tab-content" id="settings-tab-content">
+    <div class="tab-pane fade show active" role="tabpanel" id="map-settings" aria-labelledby="map-tab">
+        <form action="{% url 'sim_app:settings' 'load_map' %}" method="post" name="load_map">
+            {% csrf_token %}
+            <label for="map_name">Map Name: </label>
+            <input id="map_name" type="text" name="map_name" value="{{ map_name }}">
+            <input type="submit" value="Load Map">
+        </form>
+    </div>
+
+    <div class="tab-pane fade" role="tabpanel" id="node-settings" aria-labelledby="node-tab">
+        <form action="{% url 'sim_app:settings' 'add_node' %}" method="post" name="add_node">
+            {% csrf_token %}
+            <legend>Add Node:</legend>
+            <label for="node_id">Node ID:</label>
+            <input id="node_id" type="text" name="node_id" value="{{ node_id }}">
+            <label for="node_x">Node X:</label>
+            <input id="node_x" type="text" name="node_x" value="{{ node_x }}">
+            <label for="node_y">Node Y: </label>
+            <input id="node_y" type="text" name="node_y" value="{{ node_y }}">
+            <input type="submit" value="Add Node">
+        </form>
+    </div>
+
+    <div class="tab-pane fade" role="tabpanel" id="edge-settings" aria-labelledby="edge-tab">
+        <form action="{% url 'sim_app:settings' 'add_edge' %}" method="post" name="add_edge">
+            {% csrf_token %}
+            <legend>Add Edge:</legend>
+            <label for="edge_from">from: </label>
+            <input id="edge_from" type="text" name="edge_from" value="{{ edge_from }}">
+            <label for="edge_to">to: </label>
+            <input id="edge_to" type="text" name="edge_to" value="{{ edge_to }}">
+            <label for="edge_lanes">Lane Count: </label>
+            <input id="edge_lanes" type="text" name="edge_lanes" value="{{ edge_lanes }}">
+            <label for="edge_bidir">Is Bidirected?: </label>
+            <input id="edge_bidir" type="checkbox" name="edge_bidir" value="{{ edge_bidir }}">
+            <input type="submit" value="Add Edge">
+        </form>
+    </div>
+
+    <div class="tab-pane fade" role="tabpanel" id="gen-settings" aria-labelledby="gen-tab">
+        <form action="{% url 'sim_app:settings' 'add_gen' %}" method="post" name="add_gen">
+            {% csrf_token %}
+            <legend for="debug_level">Add Generator: </legend>
+            <label for="gen_source">Comma seperated source list: </label>
+            <input id="gen_source" type="text" name="gen_source" value="{{ gen_source }}">
+            <label for="gen_target">Comma seperated target list: </label>
+            <input id="gen_target" type="text" name="gen_target" value="{{ gen_target }}">
+            <label for="gen_period">Period: </label>
+            <input id="gen_period" type="text" name="gen_period" value="{{ gen_period }}">
+            <label for="gen_count">Car count: </label>
+            <input id="gen_count" type="text" name="gen_count" value="{{ gen_count }}">
+            <input type="submit" value="Add Generator">
+        </form>
+    </div>
+
+    <div class="tab-pane fade" role="tabpanel" id="debug-settings" aria-labelledby="debug-tab">
+        <form action="{% url 'sim_app:settings' 'debug_level' %}" method="post" name="debug_level">
+            {% csrf_token %}
+            <legend for="debug_level">Debug Level: </legend>
+            <input id="dl_car_stat" type="checkbox" name="debug_level[]" value="CarStats">
+            <label for="dl_car_stat">CarStat</label>
+            <input id="dl_edge_stat" type="checkbox" name="debug_level[]" value="EdgeStats">
+            <label for="dl_edge_stat">EdgeStat</label>
+            <input id="dl_enter_exit" type="checkbox" name="debug_level[]" value="CarEnterExits">
+            <label for="dl_enter_exit">CarEnterExit</label>
+            <input type="submit" value="Set Debug Level">
+        </form>
+    </div>
 </div>
 
-<div>
-    <form action="{% url 'sim_app:settings' 'add_gen' %}" method="post" name="add_gen">
-        {% csrf_token %}
-        <legend for="debug_level">Add Generator: </legend>
-        <label for="gen_source">Comma seperated source list: </label>
-        <input id="gen_source" type="text" name="gen_source" value="{{ gen_source }}">
-        <label for="gen_target">Comma seperated target list: </label>
-        <input id="gen_target" type="text" name="gen_target" value="{{ gen_target }}">
-        <label for="gen_period">Period: </label>
-        <input id="gen_period" type="text" name="gen_period" value="{{ gen_period }}">
-        <label for="gen_count">Car count: </label>
-        <input id="gen_count" type="text" name="gen_count" value="{{ gen_count }}">
-        <input type="submit" value="Add Generator">
-    </form>
-</div>
-
-<div>
-    <form action="{% url 'sim_app:settings' 'debug_level' %}" method="post" name="debug_level">
-        {% csrf_token %}
-        <legend for="debug_level">Debug Level: </legend>
-        <input id="dl_car_stat" type="checkbox" name="debug_level[]" value="CarStats">
-        <label for="dl_car_stat">CarStat</label>
-        <input id="dl_edge_stat" type="checkbox" name="debug_level[]" value="EdgeStats">
-        <label for="dl_edge_stat">EdgeStat</label>
-        <input id="dl_enter_exit" type="checkbox" name="debug_level[]" value="CarEnterExits">
-        <label for="dl_enter_exit">CarEnterExit</label>
-        <input type="submit" value="Set Debug Level">
-    </form>
-</div>
 
 <div>
     <form action="{% url 'sim_app:simulation' %}" method="post" name="start_sim">
@@ -85,4 +110,14 @@
     </form>
 </div>
 
+{% endblock %}
+
+{% block scripts %}
+    {{ block.super }}
+    <script>
+        $('#settings-tab a').on('click', function (e) {
+            e.preventDefault();
+            $(this).tab('show');
+        })
+    </script>
 {% endblock %}
