@@ -7,7 +7,8 @@
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
         <!-- Bootstrap -->
-        <link rel="stylesheet" type="text/css" href="{% static 'sim_app/css/bootstrap.min.css' %}"/>
+        <link rel="stylesheet" type="text/css" href="{% static 'sim_app/css/bootstrap.min.css' %}">
+        <link rel="stylesheet" type="text/css" href="{% static 'sim_app/css/base.css' %}">
         {% block custom-css %}
         {% endblock %}
 
@@ -15,10 +16,12 @@
     </head>
     <body>
 
-        <nav class="navbar navbar-light bg-light">
+        <nav class="navbar navbar-light bg-light shadow px-5">
             <a class="navbar-brand" href="/">
-                <img src="{% static 'sim_app/img/stop.svg' %}" with="30" height="30" class="d-inline-block align-top"alt="">
-                Traffic Sim
+                <div class="d-flex">
+                    <img src="{% static 'sim_app/img/stop.svg' %}" class="d-inline-block align-bottom"  width="30" height="30"alt="">
+                    <span class="font-weight-light logo mx-2">Traffic Sim</span>
+                </div>
             </a>
         </nav>
 
