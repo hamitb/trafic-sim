@@ -96,18 +96,42 @@
         </div>
 
         <div class="tab-pane fade container" role="tabpanel" id="edge-settings">
+            <p class="text-muted text-center font-weight-light">Add new edge between two nodes</p>
             <form action="{% url 'sim_app:settings' 'add_edge' %}" method="post" name="add_edge">
                 {% csrf_token %}
-                <legend>Add Edge:</legend>
-                <label for="edge_from">from: </label>
-                <input id="edge_from" type="text" name="edge_from" value="{{ edge_from }}">
-                <label for="edge_to">to: </label>
-                <input id="edge_to" type="text" name="edge_to" value="{{ edge_to }}">
-                <label for="edge_lanes">Lane Count: </label>
-                <input id="edge_lanes" type="text" name="edge_lanes" value="{{ edge_lanes }}">
-                <label for="edge_bidir">Is Bidirected?: </label>
-                <input id="edge_bidir" type="checkbox" name="edge_bidir" value="{{ edge_bidir }}">
-                <input type="submit" value="Add Edge">
+                <div class="form-row align-items-center justify-content-center mb-2">
+                    <div class="col-auto">
+                        <div class="input-group">
+                            <span class="input-group-addon">From</span>
+                            <input id="edge_from" class="form-control" type="text" name="edge_from" placeholder="Node ID">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-row align-items-center justify-content-center mb-2">
+                    <div class="col-auto">
+                        <div class="input-group">
+                            <span class="input-group-addon">To</span>
+                            <input id="edge_to" class="form-control" type="text" name="edge_to" placeholder="Node ID">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-row align-items-center justify-content-center mb-2">
+                    <div class="col-auto">
+                        <div class="input-group">
+                            <span class="input-group-addon">Lanes</span>
+                            <input id="edge_lanes" class="form-control" type="text" name="edge_lanes" placeholder="Count">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-row align-items-center justify-content-center mb-2">
+                    <div class="form-check">
+                        <input id="edge_bidir" class="form-check-input" type="checkbox" name="edge_bidir">
+                        <label for="edge_bidir" class="">Bidirected</label>
+                    </div>
+                </div>
+                <div class="form-row align-items-center justify-content-center mt-3">
+                    <button class="btn btn-primary" type="submit">Add Edge</button>
+                </div>
             </form>
         </div>
 
