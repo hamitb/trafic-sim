@@ -22,6 +22,7 @@ def settings(request, component):
     session = request.session
     
     form = request.POST
+    print(form)
     session_id = session.session_key
     req = {
             'method': '',

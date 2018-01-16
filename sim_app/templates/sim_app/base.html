@@ -8,7 +8,8 @@
 
         <!-- Bootstrap -->
         <link rel="stylesheet" type="text/css" href="{% static 'sim_app/css/bootstrap.min.css' %}"/>
-        <link rel="stylesheet" type="text/css" href="{% static 'sim_app/css/custom.css' %}"/>
+        {% block custom-css %}
+        {% endblock %}
 
         <title>Traffic Sim</title>
     </head>
