@@ -5,7 +5,7 @@
     <link rel="stylesheet" type="text/css" href="{% static 'sim_app/css/custom.css' %}">
 {% endblock %}
 
-{% block content %}
+{% block settings-content %}
 
 <div>
     <ul class="nav nav-pills justify-content-center mt-4" id="settings-tab" role="tablist">
@@ -38,7 +38,9 @@
                     <div class="form-row align-items-center my-2">
                         <div class="col-auto">
                             <div class="input-group">
-                                <span class="input-group-addon">Load</span>
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text">Load</span>
+                                </div>
                                 <input id="map_name" class="form-control" placeholder="Map Name" type="text" name="map_name" value="{{ map_name }}">
                             </div>
                         </div>
@@ -50,7 +52,9 @@
                     <div class="form-row align-items-center my-2">
                         <div class="col-auto">
                             <div class="input-group">
-                                <span class="input-group-addon">Save</span>
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text">Save</span>
+                                </div>
                                 <input id="map_name" class="form-control" placeholder="Map Name" type="text" name="map_name" value="{{ map_name }}">
                             </div>
                         </div>
@@ -68,7 +72,9 @@
                 <div class="form-row align-items-center justify-content-center mb-2">
                     <div class="col-auto">
                         <div class="input-group">
-                            <span class="input-group-addon">ID</span>
+                            <div class="input-group-prepend">
+                                    <span class="input-group-text">ID</span>
+                                </div>
                             <input id="node_id" class="form-control" type="text" name="node_id" placeholder="Node ID" value="{{ node_id }}">
                         </div>
                     </div>
@@ -76,7 +82,9 @@
                 <div class="form-row align-items-center justify-content-center mb-2">
                     <div class="col-auto">
                         <div class="input-group">
-                            <span class="input-group-addon">X</span>
+                            <div class="input-group-prepend">
+                                    <span class="input-group-text">X</span>
+                                </div>
                             <input id="node_x" class="form-control" type="text" name="node_x" placeholder="X Pos" value="{{ node_x }}">
                         </div>
                     </div>
@@ -84,7 +92,9 @@
                 <div class="form-row align-items-center justify-content-center mb-2">
                     <div class="col-auto">
                         <div class="input-group">
-                            <span class="input-group-addon">Y</span>
+                            <div class="input-group-prepend">
+                                    <span class="input-group-text">Y</span>
+                                </div>
                             <input id="node_y" class="form-control" type="text" name="node_y" placeholder="Y Pos" value="{{ node_y }}">
                         </div>
                     </div>
@@ -102,7 +112,9 @@
                 <div class="form-row align-items-center justify-content-center mb-2">
                     <div class="col-auto">
                         <div class="input-group">
-                            <span class="input-group-addon">From</span>
+                            <div class="input-group-prepend">
+                                    <span class="input-group-text">From</span>
+                                </div>
                             <input id="edge_from" class="form-control" type="text" name="edge_from" placeholder="Node ID">
                         </div>
                     </div>
@@ -110,7 +122,9 @@
                 <div class="form-row align-items-center justify-content-center mb-2">
                     <div class="col-auto">
                         <div class="input-group">
-                            <span class="input-group-addon">To</span>
+                            <div class="input-group-prepend">
+                                    <span class="input-group-text">To</span>
+                                </div>
                             <input id="edge_to" class="form-control" type="text" name="edge_to" placeholder="Node ID">
                         </div>
                     </div>
@@ -118,7 +132,9 @@
                 <div class="form-row align-items-center justify-content-center mb-2">
                     <div class="col-auto">
                         <div class="input-group">
-                            <span class="input-group-addon">Lanes</span>
+                            <div class="input-group-prepend">
+                                    <span class="input-group-text">Lanes</span>
+                                </div>
                             <input id="edge_lanes" class="form-control" type="text" name="edge_lanes" placeholder="Count">
                         </div>
                     </div>
@@ -142,7 +158,9 @@
                 <div class="form-row align-items-center justify-content-center mb-2">
                     <div class="col-auto">
                         <div class="input-group">
-                            <span class="input-group-addon">Sources</span>
+                            <div class="input-group-prepend">
+                                    <span class="input-group-text">Sources</span>
+                                </div>
                             <input id="gen_source" class="form-control" type="text" name="gen_source" placeholder="Node ID List">
                         </div>
                     </div>
@@ -150,7 +168,9 @@
                 <div class="form-row align-items-center justify-content-center mb-2">
                     <div class="col-auto">
                         <div class="input-group">
-                            <span class="input-group-addon">Targets</span>
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">Targets</span>
+                            </div>
                             <input id="gen_target" class="form-control" type="text" name="gen_target" placeholder="Node ID List">
                         </div>
                     </div>
@@ -158,7 +178,9 @@
                 <div class="form-row align-items-center justify-content-center mb-2">
                     <div class="col-auto">
                         <div class="input-group">
-                            <span class="input-group-addon">Period</span>
+                            <div class="input-group-prepend">
+                                    <span class="input-group-text">Period</span>
+                                </div>
                             <input id="gen_period" class="form-control" type="text" name="gen_period" placeholder="Seconds">
                         </div>
                     </div>
@@ -166,8 +188,10 @@
                 <div class="form-row align-items-center justify-content-center mb-2">
                     <div class="col-auto">
                         <div class="input-group">
-                            <span class="input-group-addon">Car Count</span>
-                            <input id="gen_count" class="form-control" type="text" name="gen_count" placeholder="#">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">Car Count</span>
+                            </div>
+                            <input id="gen_count" class="form-control" type="text" name="gen_count" placeholder="# of cars">
                         </div>
                     </div>
                 </div>
@@ -179,9 +203,10 @@
         </div>
 
         <div class="tab-pane fade container" role="tabpanel" id="debug-settings">
+            <p class="text-muted text-center font-weight-light">Set debug level according to notifications that you want</p>
             <form action="{% url 'sim_app:settings' 'debug_level' %}" method="post" name="debug_level">
                 {% csrf_token %}
-                <div class="px-5">
+                <div class="d-flex flex-column align-items-center px-5">
                     <div class="form-check">
                         <input class="form-check-input" id="dl_car_stat" type="checkbox" name="debug_level" value="CarStats">
                         <label for="dl_car_stat">CarStat</label>
@@ -210,6 +235,28 @@
     </form>
 </div>
 
+{% endblock %}
+
+{% block sim-content %}
+<div class="d-flex flex-column  align-items-center justify-content-center">
+    <div class="my-4">
+        <form action="{% url 'sim_app:simulation' %}" method="post" >{% csrf_token %}
+            <div class="input-group px-5 mb-3">
+                <div class="input-group-prepend">
+                    <button name="start-sim" class="btn btn-primary">Start Simulation</button>
+                </div>
+                <input class="form-control" type="text" id="tick_period" name="tick_period" placeholder="with Tick period (milliseconds)">
+                <div class="input-group-append">
+                    <input name="tick" class="btn btn-success" type="submit" value="or manually Tick">
+                    <input name="terminate-sim" class="btn btn-danger" type="submit" value="Terminate">
+                </div>
+            </div>
+        </form>
+        <p class="text-muted text-center font-weight-light">Simulation Map will be here</p>
+        <div class="sim-map rounded custom-border">
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block scripts %}
