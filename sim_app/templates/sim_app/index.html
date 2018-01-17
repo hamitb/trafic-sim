@@ -136,32 +136,68 @@
         </div>
 
         <div class="tab-pane fade container" role="tabpanel" id="gen-settings">
+            <p class="text-muted text-center font-weight-light">Add new generators to spawn new cars randomly</p>
             <form action="{% url 'sim_app:settings' 'add_gen' %}" method="post" name="add_gen">
                 {% csrf_token %}
-                <legend for="debug_level">Add Generator: </legend>
-                <label for="gen_source">Comma seperated source list: </label>
-                <input id="gen_source" type="text" name="gen_source" value="{{ gen_source }}">
-                <label for="gen_target">Comma seperated target list: </label>
-                <input id="gen_target" type="text" name="gen_target" value="{{ gen_target }}">
-                <label for="gen_period">Period: </label>
-                <input id="gen_period" type="text" name="gen_period" value="{{ gen_period }}">
-                <label for="gen_count">Car count: </label>
-                <input id="gen_count" type="text" name="gen_count" value="{{ gen_count }}">
-                <input type="submit" value="Add Generator">
+                <div class="form-row align-items-center justify-content-center mb-2">
+                    <div class="col-auto">
+                        <div class="input-group">
+                            <span class="input-group-addon">Sources</span>
+                            <input id="gen_source" class="form-control" type="text" name="gen_source" placeholder="Node ID List">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-row align-items-center justify-content-center mb-2">
+                    <div class="col-auto">
+                        <div class="input-group">
+                            <span class="input-group-addon">Targets</span>
+                            <input id="gen_target" class="form-control" type="text" name="gen_target" placeholder="Node ID List">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-row align-items-center justify-content-center mb-2">
+                    <div class="col-auto">
+                        <div class="input-group">
+                            <span class="input-group-addon">Period</span>
+                            <input id="gen_period" class="form-control" type="text" name="gen_period" placeholder="Seconds">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-row align-items-center justify-content-center mb-2">
+                    <div class="col-auto">
+                        <div class="input-group">
+                            <span class="input-group-addon">Car Count</span>
+                            <input id="gen_count" class="form-control" type="text" name="gen_count" placeholder="#">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-row align-items-center justify-content-center mt-3">
+                    <button class="btn btn-primary" type="submit">Add Generator</button>
+                </div>
             </form>
         </div>
 
         <div class="tab-pane fade container" role="tabpanel" id="debug-settings">
             <form action="{% url 'sim_app:settings' 'debug_level' %}" method="post" name="debug_level">
                 {% csrf_token %}
-                <legend for="debug_level">Debug Level: </legend>
-                <input id="dl_car_stat" type="checkbox" name="debug_level[]" value="CarStats">
-                <label for="dl_car_stat">CarStat</label>
-                <input id="dl_edge_stat" type="checkbox" name="debug_level[]" value="EdgeStats">
-                <label for="dl_edge_stat">EdgeStat</label>
-                <input id="dl_enter_exit" type="checkbox" name="debug_level[]" value="CarEnterExits">
-                <label for="dl_enter_exit">CarEnterExit</label>
-                <input type="submit" value="Set Debug Level">
+                <div class="px-5">
+                    <div class="form-check">
+                        <input class="form-check-input" id="dl_car_stat" type="checkbox" name="debug_level" value="CarStats">
+                        <label for="dl_car_stat">CarStat</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" id="dl_edge_stat" type="checkbox" name="debug_level" value="EdgeStats">
+                        <label for="dl_edge_stat">EdgeStat</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" id="dl_enter_exit" type="checkbox" name="debug_level" value="CarEnterExits">
+                        <label for="dl_enter_exit">CarEnterExit</label>
+                    </div>
+                </div>
+                <div class="form-row align-items-center justify-content-center mt-3">
+                    <button class="btn btn-primary" type="submit">Set Debug Level</button>
+                </div>
             </form>
         </div>
     </div>
