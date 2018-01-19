@@ -259,7 +259,7 @@
 {% endblock %}
 
 {% block sim-content %}
-<div class="d-flex flex-column  align-items-center justify-content-center">
+<div id="sim-container" class="d-flex flex-column align-items-center justify-content-center">
     <div class="my-4">
         <form action="{% url 'sim_app:simulation' %}" method="post" >{% csrf_token %}
             <div class="input-group px-5 mb-3">

@@ -1,8 +1,11 @@
-$('#settings-container').find('form').on('submit', function (e) {
+// Settings AJAX
+$('#settings-container, #sim-container').find('form').on('submit', function (e) {
     e.preventDefault();
     var form = this;
     var form_action = $(form).attr('action');
     var form_data = $(form).serialize();
+
+    form_data += ("&" + document.activeElement.name + '=');
 
     startWait();
     $.ajax({
@@ -14,6 +17,7 @@ $('#settings-container').find('form').on('submit', function (e) {
         }
     });
 });
+
 
 function startWait() {
     info = $('#info');

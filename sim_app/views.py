@@ -14,7 +14,7 @@ def index(request):
         'notification': request.session['notification'] if 'notification' in request.session else '',
     }
 
-    rpc_service(request.session.session_key, quick_start=False)
+    rpc_service(request.session.session_key, quick_start=True)
 
     return render(request, 'sim_app/index.html', context)
 
@@ -80,13 +80,10 @@ def settings(request, component):
 
 
 def simulation(request):
-    context = {}
     session_id = request.session.session_key
-    
-    if not session_exist_with(session_id):
-        context['error_message'] = 'You should create a simulation first, go to settings page'
-        return render(request, 'sim_app/simulation.html', context)
-    
+    notification = ""
+    result = "success"
+
     if 'tick' in request.POST:
         req = {
             'method': 'tick',
@@ -95,7 +92,9 @@ def simulation(request):
         }
         rpc_json = json.dumps(req)
         rpc_call(rpc_json, session_id)
-    elif 'start_sim' in request.POST:
+        notification = "Tick!"
+        result = "success"
+    elif 'start-sim' in request.POST:
         if not is_sim_active_for(session_id):
             req = {
                 'method': 'start_simulation',
@@ -105,10 +104,9 @@ def simulation(request):
             rpc_json = json.dumps(req)
             rpc_call(rpc_json, session_id)
 
-            set_last_notification(session_id, "Simulation started, refresh page to get notifications")
-            last_notification = get_last_notification(session_id)
-            return redirect('/simulation')
-    elif 'terminate_sim' in request.POST:
+            notification = "Simulation started!"
+            result = "success"
+    elif 'terminate-sim' in request.POST:
         req = {
             'method': 'terminate_simulation',
             'args': [],
@@ -116,9 +114,12 @@ def simulation(request):
         }
         rpc_json = json.dumps(req)
         rpc_call(rpc_json, session_id)
-        set_last_notification(session_id, "Simulation terminated")
+        result = "success"
+        notification = "Terminated"
 
-    last_notification = get_last_notification(session_id)
-    context['last_notification'] = last_notification
+    resp = {
+        "result": result,
+        "notification": notification,
+    }
     
-    return render(request, 'sim_app/simulation.html', context)
+    return JsonResponse(resp)
