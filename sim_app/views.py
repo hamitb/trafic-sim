@@ -1,8 +1,8 @@
 from django.shortcuts import render, redirect
-from django.http import HttpResponseRedirect
-from django.urls import reverse
+from django.http import JsonResponse
 from util.server import rpc_service, rpc_call, set_last_notification, get_last_notification, session_exist_with, is_sim_active_for
 import json
+from ast import literal_eval
 
 # Create your views here.
 def index(request):
@@ -14,7 +14,7 @@ def index(request):
         'notification': request.session['notification'] if 'notification' in request.session else '',
     }
 
-    rpc_service(request.session.session_key, quick_start=True)
+    rpc_service(request.session.session_key, quick_start=False)
 
     return render(request, 'sim_app/index.html', context)
 
@@ -47,7 +47,7 @@ def settings(request, component):
         edge_from = form['edge_from']
         edge_to = form['edge_to']
         edge_lanes = form['edge_lanes']
-        edge_bidir = form['edge_bidir']
+        edge_bidir = True if 'edge_bidir' in form else False
 
         req['method'] = 'add_road'
         req['args'] = [int(edge_from), int(edge_to), int(edge_lanes), bool(edge_bidir)]
@@ -60,14 +60,24 @@ def settings(request, component):
         req['method'] = 'add_generator'
         req['args'] = [gen_source, gen_target, period, count]
     elif component == 'debug_level':
-        pass
+        debug_level = form.getlist('debug_level')
+
+        req['method'] = 'set_debug_level'
+        req['args'] = [debug_level]
 
     if(req['method']):
         rpc_json = json.dumps(req)
-        rpc_call(rpc_json, session_id)
-        request.session['notification'] = notification.format(req['method'], req['args'])
+        try:
+            rpc_call(rpc_json, session_id)
+            notification = notification.format(req['method'], req['args'])
+            return JsonResponse({"result": "success", "notification": notification});
+        except:
+            notification = "Some bad things happened"
+            return JsonResponse({"result": "danger", "notification": notification});
 
-    return redirect(reverse('sim_app:index'))
+
+
+
 
 def simulation(request):
     context = {}
