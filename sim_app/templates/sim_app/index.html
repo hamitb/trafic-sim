@@ -289,19 +289,15 @@
         });
 
         $("ul.nav-pills > li > a").on("shown.bs.tab", function(e) {
+            var scrollPos = document.documentElement.scrollTop;
             id =  $(e.target).attr("href").substr(1);
             window.location.hash = id;
+            window.scroll(0, scrollPos);
         });
 
         hash = window.location.hash;
         $('#settings-tab a[href="' + hash + '"]').tab('show');
 
-        $('html,body').animate({
-            scrollTop: 0,
-            scrollLeft: 0,
-        }, 200, function() {
-            $('html,body').clearQueue();
-        });
     </script>
     <script src="{% static 'sim_app/js/ajax.js' %}"></script>
 {% endblock %}
