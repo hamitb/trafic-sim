@@ -24,6 +24,9 @@
         <li class="nav-item">
             <a class="nav-link" id="debug-tab" data-toggle="pill" href="#debug-settings">Debug Level</a>
         </li>
+        <li class="nav-item">
+            <a class="nav-link" id="restart-tab" data-toggle="pill" href="#restart-settings">Restart Sim</a>
+        </li>
     </ul>
 </div>
 
@@ -256,6 +259,24 @@
                 </div>
                 <div class="form-row align-items-center justify-content-center mt-3">
                     <button class="btn btn-primary" type="submit">Set Debug Level</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="tab-pane fade container" role="tabpanel" id="restart-settings">
+            <p class="text-muted text-center font-weight-light">Restart simulation</p>
+            <form action="{% url 'sim_app:settings' 'restart_sim' %}" method="post" name="restart_sim">
+                {% csrf_token %}
+                <div class="d-flex flex-row justify-content-center align-items-center">
+                    <div class="d-flex flex-column align-items-center px-5">
+                        <div class="form-check">
+                            <input class="form-check-input" id="quickstart" type="checkbox" name="quickstart" value="quickstart">
+                            <label for="restart_quickstart">Quick Start</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-row align-items-center justify-content-center mt-3">
+                    <button class="btn btn-danger" type="submit">Restart Sim</button>
                 </div>
             </form>
         </div>

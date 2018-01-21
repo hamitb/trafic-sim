@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
-from util.server import rpc_service, rpc_call, is_sim_active_for, get_map_state_for
+from util.server import rpc_service, rpc_call, is_sim_active_for, get_map_state_for, delete_controller_for
 import json
 
 # Create your views here.
@@ -63,6 +63,13 @@ def settings(request, component):
 
         req['method'] = 'set_debug_level'
         req['args'] = [debug_level]
+    elif component == 'restart_sim':
+        quickstart = 'quickstart' in form
+        delete_controller_for(session_id)
+        rpc_service(request.session.session_key, quick_start=quickstart)
+        map_state = get_map_state_for(session_id)
+        notification = "Simulation restarted"
+        return JsonResponse({"result": "success", "notification": notification, "map_state": map_state});
 
     if(req['method']):
         rpc_json = json.dumps(req)
@@ -70,7 +77,7 @@ def settings(request, component):
             rpc_call(rpc_json, session_id)
             notification = notification.format(req['method'], req['args'])
             map_state = get_map_state_for(session_id)
-            return JsonResponse({"result": "success", "notification": notification, "map_state": map_state});
+            return JsonResponse({"result": "success", "notification": notification, "map_state": map_state})
         except:
             notification = "Some bad things happened"
             return JsonResponse({"result": "danger", "notification": notification});

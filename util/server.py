@@ -6,9 +6,10 @@ from .controller import Controller
 
 pairs = dict()
 def set_controller(key, c):
-    pairs[key] = {
-        'c': c,
-    }
+    if key in pairs:
+        pairs[key]['c'] = c
+    else:
+        pairs[key] = {'c': c,}
 
 def is_sim_active_for(key):
     return not (get_controller(key).sim.manual)
@@ -20,7 +21,12 @@ def get_map_state_for(session_id):
     return get_controller(session_id).get_map_state()
 
 def session_exist_with(key):
-    return key in pairs
+    exist = key in pairs
+
+    if not exist:
+        return False
+    else:
+        return 'c' in pairs[key]
 
 def rpc_call(req_string, session_id):
     printwc("green", "RPC Call from: {}".format(session_id))
@@ -49,6 +55,9 @@ def rpc_service(session_id, quick_start=False):
 
 def register_socket(session_id, reply_channel):
     pairs[session_id]['s'] = reply_channel
+
+def delete_controller_for(session_id):
+    del(pairs[session_id])
 
 def get_socket(session_id):
     return pairs[session_id]['s']
