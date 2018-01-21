@@ -1,7 +1,7 @@
 .sim-map {
-    height: 300px;
+    height: 450px;
     width: 800px;
-    background-color: rgba(220, 220, 220, 0.5);
+    background-color: rgba(240, 240, 240, 0.5);
 }
 
 .custom-border {
@@ -12,4 +12,9 @@
 
 .shadow {
     box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.map-canvas {
+    width: 350px;
+    height: 150px;
 }
