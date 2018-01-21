@@ -31,6 +31,9 @@ $('#settings-container, #sim-container').find('form').on('submit', function (e) 
         success: function (data) {
             if ('map_state' in data) {
                 drawMap(data.map_state);
+
+                if ($(form).attr('name') === 'restart_sim')
+                    clearCars();
             }
             stopWait(data.notification, data.result);
         }

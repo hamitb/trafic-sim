@@ -8,7 +8,7 @@ def index(request):
     if not request.session.session_key:
         request.session.save()
 
-    rpc_service(request.session.session_key, quick_start=True)
+    rpc_service(request.session.session_key, quick_start=False)
 
     return render(request, 'sim_app/index.html')
 
@@ -29,6 +29,11 @@ def settings(request, component):
         map_name = form['map_name']
         
         req['method'] = 'load_map'
+        req['args'] = [map_name]
+    elif component == 'save_map':
+        map_name = form['map_name']
+
+        req['method'] = 'save_map'
         req['args'] = [map_name]
     elif component == 'add_node':
         node_id = form['node_id']
@@ -78,7 +83,8 @@ def settings(request, component):
             notification = notification.format(req['method'], req['args'])
             map_state = get_map_state_for(session_id)
             return JsonResponse({"result": "success", "notification": notification, "map_state": map_state})
-        except:
+        except Exception as err:
+            print(err)
             notification = "Some bad things happened"
             return JsonResponse({"result": "danger", "notification": notification});
 

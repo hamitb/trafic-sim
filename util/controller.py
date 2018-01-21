@@ -43,11 +43,12 @@ class Controller(object):
         args = mes['args']
         kwargs = mes['kwargs']
 
-        printwc('yellow', "{} called: {} with args:{} and kwargs:{}\n".format(self.session_id, m_name, args, kwargs))
 
         # Call requested method
         f = self.methods[m_name]
         f(*args, **kwargs)
+
+        printwc('yellow', "{} executed: {} with args:{} and kwargs:{}\n".format(self.session_id, m_name, args, kwargs))
 
     def quick_start(self):
         messages = [

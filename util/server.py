@@ -57,7 +57,7 @@ def register_socket(session_id, reply_channel):
     pairs[session_id]['s'] = reply_channel
 
 def delete_controller_for(session_id):
-    del(pairs[session_id])
+    del(pairs[session_id]['c'])
 
 def get_socket(session_id):
     return pairs[session_id]['s']

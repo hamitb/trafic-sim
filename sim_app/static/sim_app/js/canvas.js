@@ -99,6 +99,12 @@ function drawCars(cars) {
     }
 }
 
+function clearCars() {
+    var context = car_context;
+
+    context.clearRect(0, 0, car_canvas.width, car_canvas.height);
+}
+
 // Initialization................................................
 
 drawGrid(grid_context, 'lightgray', 10, 10);

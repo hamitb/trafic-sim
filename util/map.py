@@ -206,6 +206,8 @@ class Map(object):
                     'map_name': self.name,
                 })
 
+        return raw_edges
+
     def get_edge_objects(self):
         edges = []
 
