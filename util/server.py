@@ -8,17 +8,10 @@ pairs = dict()
 def set_controller(key, c):
     pairs[key] = {
         'c': c,
-        'n': '',
     }
 
 def is_sim_active_for(key):
     return not (get_controller(key).sim.manual)
-
-def set_last_notification(key, notification):
-    pairs[key]['n'] = notification
-
-def get_last_notification(key):
-    return pairs[key]['n']
 
 def get_controller(key):
     return pairs[key]['c']
@@ -30,7 +23,7 @@ def rpc_call(req_string, session_id):
     printwc("green", "RPC Call from: {}".format(session_id))
     get_controller(session_id).execute_rpc(req_string)
 
-def rpc_service(session_id, reply_channel=None, quick_start=False):
+def rpc_service(session_id, quick_start=False):
     '''
     parse_service listens for remote procedure call requests and handles requests
     coming from client in the form of binary json strings.
@@ -40,10 +33,10 @@ def rpc_service(session_id, reply_channel=None, quick_start=False):
     
     if not session_exist_with(session_id):
         # Controller(Map + Simulation) of this connection
-        c = Controller(socket=reply_channel, session_id=session_id)
+        c = Controller(session_id=session_id)
         c.register_cb(notify_client)
 
-        print("Add contoller to dict with session-id")
+        print("Add contoller to dict with session-id: {}".format(session_id))
         set_controller(session_id, c)
 
         if quick_start:
@@ -51,10 +44,21 @@ def rpc_service(session_id, reply_channel=None, quick_start=False):
             c.quick_start()
     
 
-def notify_client(subj, reply_channel=False):
+def register_socket(session_id, reply_channel):
+    pairs[session_id]['s'] = reply_channel
+
+def get_socket(session_id):
+    return pairs[session_id]['s']
+
+def notify_client(subj):
     data = subj.stats
-    mes = dict()
+    mes = {}
     debug_level = subj.debug_level
+
+    try:
+        reply_channel = get_socket(subj.session_id)
+    except:
+        reply_channel = None
 
     send_dl = []
     for dl in debug_level:
@@ -63,6 +67,8 @@ def notify_client(subj, reply_channel=False):
             mes[dl] = current_dl
             send_dl.append(dl)
 
+    mes['clock'] = subj.clock
+
     if len(mes) != 0:
         mes_json = json.dumps(mes, indent=4)
 
@@ -70,8 +76,8 @@ def notify_client(subj, reply_channel=False):
             reply_channel.send({
                 "text": mes_json
             })
-
-        set_last_notification(subj.session_id, mes_json)
+        else:
+            printwc('red', "Error no socket found, no data send")
 
         printwc('green', 'Tick #{}, send stats: {}\n'.format(subj.clock, send_dl))
 

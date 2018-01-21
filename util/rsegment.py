@@ -293,7 +293,7 @@ class Rsegment(object):
             '''
         stats = {
             'CarStat': [],
-            'CarEnterExist': [],
+            'CarEnterExit': [],
             'CarStartFinish': [],
             'EdgeStat': {},
         }
@@ -302,7 +302,7 @@ class Rsegment(object):
                 stats['CarStat'].append(v.get_stats())
 
                 if v.cur_completed_length == 0 or v.finish_cur_segment:
-                    stats['CarEnterExist'].append(v.get_stats())
+                    stats['CarEnterExit'].append(v.get_stats())
 
                 if v.cur_completed_length == 0 or v.finish_path:
                     stats['CarStartFinish'].append(v.get_stats())

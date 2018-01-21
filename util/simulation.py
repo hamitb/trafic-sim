@@ -24,6 +24,7 @@ class Generator(object):
         self.completed = False
         self.terminated = False
         self.lock = lock
+        self.session_id = ""
 
     def get_start_end_nodes(self):
         start_node = np.random.choice(self.source_list)
@@ -239,7 +240,7 @@ class Simulation(Observed):
             if self.terminated:
                 break
             self.stats = self.get_stats()
-            self.notify(self.socket)
+            self.notify()
             self.notif_on.clear()
 
     def _simulation_thread(self):
@@ -268,7 +269,7 @@ class Simulation(Observed):
                 self.reset_simulation()
                 break
 
-        printwc('red', "Simulation terminated !")
+        printwc('red', "Simulation completed !")
         return
 
     def tick(self):
@@ -279,7 +280,8 @@ class Simulation(Observed):
         '''
         # printwc('green_bg', "Tick #{}".format(self.clock))
         # print()
-        if self.completed:
+        if self.check_sim_completed():
+            printwc('red', "Simulation completed !")
             return
 
         for gen in self.generators:
@@ -290,7 +292,7 @@ class Simulation(Observed):
 
         if self.manual:
             self.stats = self.get_stats()
-            self.notify(self.socket)
+            self.notify()
 
         if not self.completed:
             for gen in self.generators:
@@ -298,9 +300,6 @@ class Simulation(Observed):
                     gen.start_threads()
 
         self.clock += 1
-
-    def set_socket(self, socket):
-        self.socket = socket
 
     def edge_to_rsegment(self, path):
         rsegment_path = []
@@ -335,7 +334,10 @@ class Simulation(Observed):
         else:
             self.stop_gen_threads()
             self.stop_rsegment_threads()
+
         self.reset_simulation()
+
+        printwc('red', "Simulation terminated !")
     
     def stop_gen_threads(self):
         for gen in self.generators:
@@ -407,7 +409,7 @@ class Simulation(Observed):
         '''
         stats = {
             'CarStat': [],
-            'CarEnterExist': [],
+            'CarEnterExit': [],
             'CarStartFinish': [],
             'EdgeStat': [],
             'SimStat': {},
@@ -416,7 +418,7 @@ class Simulation(Observed):
         for key, rs in self.rsegments.items():
             rs_stats = rs.get_stats()
             stats['CarStat'] += rs_stats['CarStat']
-            stats['CarEnterExist'] += rs_stats['CarEnterExist']
+            stats['CarEnterExit'] += rs_stats['CarEnterExit']
             stats['CarStartFinish'] += rs_stats['CarStartFinish']
             stats['EdgeStat'].append(rs_stats['EdgeStat'])
 

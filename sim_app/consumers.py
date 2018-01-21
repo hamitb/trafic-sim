@@ -1,16 +1,19 @@
-# In consumers.py
 import json
-from channels import Group
-from util.server import rpc_service, rpc_call
+from channels.sessions import http_session
+from util.server import register_socket
 
 # Connected to websocket.connect
+@http_session
 def ws_connect(message):
     # Accept connection
-    message.reply_channel.send({"accept": True, "text": "Hello from server"})
+    try:
+        message.reply_channel.send({"accept": True, "text": "Successfully bound."})
+        register_socket(message.http_session.session_key, message.reply_channel)
+    except:
+        message.reply_channel.send({"accept": False, "text": "Session error: key not found"})
     # Parse the query string
-    rpc_service(message.reply_channel, quick_start=True)
 
 
 # Connected to websocket.receive
 def ws_message(message):
-    rpc_call(message["text"], message.reply_channel)
+    print(message['text'])

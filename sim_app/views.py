@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
-from util.server import rpc_service, rpc_call, set_last_notification, get_last_notification, session_exist_with, is_sim_active_for
+from util.server import rpc_service, rpc_call, is_sim_active_for
 import json
 from ast import literal_eval
 
@@ -9,14 +9,9 @@ def index(request):
     if not request.session.session_key:
         request.session.save()
 
-    context = {
-        'session_id': request.session.session_key,
-        'notification': request.session['notification'] if 'notification' in request.session else '',
-    }
-
     rpc_service(request.session.session_key, quick_start=True)
 
-    return render(request, 'sim_app/index.html', context)
+    return render(request, 'sim_app/index.html')
 
 def settings(request, component):
     session = request.session

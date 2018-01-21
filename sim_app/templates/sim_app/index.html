@@ -209,15 +209,15 @@
                 <div class="d-flex flex-row justify-content-center align-items-center">
                     <div class="d-flex flex-column align-items-center px-5">
                         <div class="form-check">
-                            <input class="form-check-input" id="dl_car_stat" type="checkbox" name="debug_level" value="CarStats">
+                            <input class="form-check-input" id="dl_car_stat" type="checkbox" name="debug_level" value="CarStat">
                             <label for="dl_car_stat">CarStat</label>
                         </div>
                         <div class="form-check">
-                            <input class="form-check-input" id="dl_enter_exit" type="checkbox" name="debug_level" value="CarEnterExits">
+                            <input class="form-check-input" id="dl_enter_exit" type="checkbox" name="debug_level" value="CarEnterExit">
                             <label for="dl_enter_exit">CarEnterExit</label>
                         </div>
                         <div class="form-check">
-                            <input class="form-check-input" id="dl_edge_stat" type="checkbox" name="debug_level" value="EdgeStats">
+                            <input class="form-check-input" id="dl_edge_stat" type="checkbox" name="debug_level" value="EdgeStat">
                             <label for="dl_edge_stat">EdgeStat</label>
                         </div>
                     </div>
@@ -300,4 +300,5 @@
 
     </script>
     <script src="{% static 'sim_app/js/ajax.js' %}"></script>
+    <script src="{% static 'sim_app/js/socket.js' %}"></script>
 {% endblock %}

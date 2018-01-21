@@ -1,4 +1,6 @@
 // Settings AJAX
+fadeSpeed = 400;
+
 $('#settings-container, #sim-container').find('form').on('submit', function (e) {
     e.preventDefault();
     var form = this;
@@ -22,13 +24,13 @@ $('#settings-container, #sim-container').find('form').on('submit', function (e) 
 function startWait() {
     info = $('#info');
     info.removeClass('alert-success alert-danger').addClass('alert-warning');
-    info.text("Wait...").fadeTo(600, 1).delay(600);
+    info.text("Wait...").fadeTo(fadeSpeed, 1).delay(fadeSpeed);
 }
 
 function stopWait(notification, result) {
     info = $('#info');
 
-    info.fadeTo(600, 0, function() {
+    info.fadeTo(fadeSpeed, 0, function() {
         info.text(notification).removeClass('alert-warning').addClass('alert-'+result);
-    }).fadeTo(600, 1).delay(600).fadeTo(1200, 0);
+    }).fadeTo(fadeSpeed, 1).delay(fadeSpeed).fadeTo(fadeSpeed, 0);
 }

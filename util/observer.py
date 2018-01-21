@@ -11,6 +11,6 @@ class Observed(object):
         except:
             print("Couldn't unregister observer")
 
-    def notify(self, socket=None):
+    def notify(self):
         for f in self._observers:
-            f(self, socket)
+            f(self)

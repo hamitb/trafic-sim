@@ -4,10 +4,9 @@ from .printwc import printwc
 import json
 
 class Controller(object):
-    def __init__(self, socket=False, session_id='no-session'):
+    def __init__(self, session_id='no-session'):
         self.sim = Simulation()
         self.sim.session_id = session_id
-        self.sim.set_socket(False)
         self.session_id = session_id
         self.map = Map()
         self.sim.set_map(self.map)
@@ -30,13 +29,7 @@ class Controller(object):
             'get_stats': self.sim.get_stats,
             'set_debug_level': self.sim.set_debug_level,
         }
-        
-        if socket:
-            self.set_socket(socket)
 
-    def set_socket(self, socket):
-        self.sim.set_socket(socket)
-        self.socket = socket
 
     def register_cb(self, f):
         self.sim.register(f)
