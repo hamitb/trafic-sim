@@ -1,5 +1,6 @@
 // Settings AJAX
 fadeSpeed = 400;
+
 $('#settings-container, #sim-container').find('form').on('submit', function (e) {
     e.preventDefault();
     var form = this;
