@@ -248,14 +248,6 @@
         </div>
     </div>
 </div>
-
-<div class="d-none">
-    <form action="{% url 'sim_app:simulation' %}" method="post" name="start_sim">
-        {% csrf_token %}
-        <input type="submit" value="Create Simulation">
-    </form>
-</div>
-
 {% endblock %}
 
 {% block sim-content %}

@@ -1,6 +1,5 @@
 // Settings AJAX
 fadeSpeed = 400;
-
 $('#settings-container, #sim-container').find('form').on('submit', function (e) {
     e.preventDefault();
     var form = this;
@@ -15,6 +14,7 @@ $('#settings-container, #sim-container').find('form').on('submit', function (e) 
         url: form_action,
         data: form_data,
         success: function (data) {
+            console.log(data.map_state);
             stopWait(data.notification, data.result);
         }
     });

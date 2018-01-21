@@ -16,6 +16,9 @@ def is_sim_active_for(key):
 def get_controller(key):
     return pairs[key]['c']
 
+def get_map_state_for(session_id):
+    return get_controller(session_id).get_map_state()
+
 def session_exist_with(key):
     return key in pairs
 

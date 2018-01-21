@@ -30,6 +30,8 @@ class Controller(object):
             'set_debug_level': self.sim.set_debug_level,
         }
 
+    def get_map_state(self):
+        return self.map.state()
 
     def register_cb(self, f):
         self.sim.register(f)

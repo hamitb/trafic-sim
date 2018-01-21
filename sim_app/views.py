@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
-from util.server import rpc_service, rpc_call, is_sim_active_for
+from util.server import rpc_service, rpc_call, is_sim_active_for, get_map_state_for
 import json
 from ast import literal_eval
 
@@ -65,14 +65,11 @@ def settings(request, component):
         try:
             rpc_call(rpc_json, session_id)
             notification = notification.format(req['method'], req['args'])
-            return JsonResponse({"result": "success", "notification": notification});
+            map_state = get_map_state_for(session_id)
+            return JsonResponse({"result": "success", "notification": notification, "map_state": map_state});
         except:
             notification = "Some bad things happened"
             return JsonResponse({"result": "danger", "notification": notification});
-
-
-
-
 
 def simulation(request):
     session_id = request.session.session_key

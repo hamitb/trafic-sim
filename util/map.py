@@ -10,6 +10,15 @@ class Node(object):
         self.y = y
         self.node_id = node_id
 
+    def state(self):
+        state_dict = {
+            'x': self.x,
+            'y': self.y,
+            'node_id': self.node_id,
+        }
+
+        return state_dict
+
 class Edge(object):
     def __init__(self, start_node, end_node, lanes_count):
         self.start_node = start_node
@@ -26,6 +35,24 @@ class Edge(object):
         rounded_length = round(root_ss, 4)
         
         return rounded_length
+
+    def state(self):
+        state_dict = {
+            'source': {
+                'x': self.start_node.x,
+                'y': self.start_node.y,
+                'id': self.start_node.node_id,
+            },
+            'target': {
+                'x': self.end_node.x,
+                'y': self.end_node.y,
+                'id': self.end_node.node_id,
+            },
+            'lanes': self.lanes_count,
+            'length': self.length,
+        }
+
+        return state_dict
 
 class Map(object):
     def  __init__(self):
@@ -179,7 +206,18 @@ class Map(object):
                     'map_name': self.name,
                 })
 
-        return raw_edges
+    def get_edge_objects(self):
+        edges = []
+
+        for start_node in self.children:
+            edge_from_current = self.children[start_node]
+            for _, edge_between in edge_from_current.items():
+                edges.append(edge_between)
+
+        return edges
+
+    def get_all_nodes(self):
+        return [node for id, node in self.nodes.items()]
 
     def save_map(self, name):
         '''
@@ -217,3 +255,12 @@ class Map(object):
         for edge in edges:
             start_node, end_node, lanes_count = edge['start_node'], edge['end_node'], edge['lanes_count']
             self.add_road(start_node, end_node, lanes_count)
+
+
+    def state(self):
+        state_dict = {
+            'edges': [edge.state() for edge in self.get_edge_objects()],
+            'nodes': [node.state() for node in self.get_all_nodes()]
+        }
+
+        return state_dict
