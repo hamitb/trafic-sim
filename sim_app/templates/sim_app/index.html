@@ -99,8 +99,26 @@
                         </div>
                     </div>
                 </div>
-                <div class="form-row align-items-center justify-content-center mt-3">
+                <div class="form-row align-items-center justify-content-center my-3">
                     <button class="btn btn-primary" type="submit">Add Node</button>
+                </div>
+            </form>
+
+            <p class="text-muted text-center font-weight-light">Delete node with NodeID</p>
+            <form action="{% url 'sim_app:settings' 'delete_node' %}" method="post" name="delete_node">
+                {% csrf_token %}
+                <div class="form-row align-items-center justify-content-center mb-2">
+                    <div class="col-auto">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                    <span class="input-group-text">ID</span>
+                                </div>
+                            <input id="node_id" class="form-control" type="text" name="node_id" placeholder="Node ID" value="{{ node_id }}">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-row align-items-center justify-content-center mt-3">
+                    <button class="btn btn-primary" type="submit">Delete Node</button>
                 </div>
             </form>
         </div>
@@ -267,7 +285,9 @@
         </form>
         <p class="text-muted text-center font-weight-light">Simulation Map will be here</p>
         <div id="map-container" class="sim-map rounded custom-border">
+            <canvas id="car-canvas" class="w-100 h-100 map-canvas cars"></canvas>
             <canvas id="map-canvas" class="w-100 h-100 map-canvas"></canvas>
+            <canvas id="map-canvas-grid" class="w-100 h-100 map-canvas grid"></canvas>
         </div>
     </div>
 </div>

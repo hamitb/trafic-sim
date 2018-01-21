@@ -1,5 +1,10 @@
 socket = new WebSocket("ws://" + window.location.host + "/");
 
 socket.onmessage = function(e) {
-    console.log("Socket message from server: " + e.data);
+    data = JSON.parse(e.data);
+    console.log(data);
+
+    if (data.type === "data") {
+        drawCars(data.cars);
+    }
 };

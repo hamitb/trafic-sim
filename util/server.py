@@ -70,19 +70,25 @@ def notify_client(subj):
             mes[dl] = current_dl
             send_dl.append(dl)
 
-    mes['clock'] = subj.clock
+    result_message = {
+        'type': 'data',
+        'debug_info': {},
+        'cars': data['CarStat'],
+        'clock': subj.clock,
+    }
 
     if len(mes) != 0:
-        mes_json = json.dumps(mes, indent=4)
+        result_message['debug_info'] = mes;
 
-        if reply_channel:
-            reply_channel.send({
-                "text": mes_json
-            })
-        else:
-            printwc('red', "Error no socket found, no data send")
+    result_message_json = json.dumps(result_message, indent=4)
+    if reply_channel:
+        reply_channel.send({
+            "text": result_message_json,
+        })
+    else:
+        printwc('red', "Error no socket found, no data send")
 
-        printwc('green', 'Tick #{}, send stats: {}\n'.format(subj.clock, send_dl))
+    printwc('green', 'Tick #{}, send stats: {}\n'.format(subj.clock, send_dl))
 
 
 

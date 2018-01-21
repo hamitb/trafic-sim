@@ -1,4 +1,5 @@
 .sim-map {
+    position: relative;
     height: 450px;
     width: 800px;
     background-color: rgba(240, 240, 240, 0.5);
@@ -15,6 +16,16 @@
 }
 
 .map-canvas {
-    width: 350px;
-    height: 150px;
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 1;
+}
+
+.grid {
+    z-index: 0;
+}
+
+.cars {
+    z-index: 2;
 }

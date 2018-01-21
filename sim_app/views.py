@@ -2,7 +2,6 @@ from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from util.server import rpc_service, rpc_call, is_sim_active_for, get_map_state_for
 import json
-from ast import literal_eval
 
 # Create your views here.
 def index(request):
@@ -38,6 +37,11 @@ def settings(request, component):
 
         req['method'] = 'add_node'
         req['args'] = [int(node_x), int(node_y), int(node_id)]
+    elif component == 'delete_node':
+        node_id = form['node_id']
+
+        req['method'] = 'delete_node'
+        req['args'] = [int(node_id)]
     elif component == 'add_edge':
         edge_from = form['edge_from']
         edge_to = form['edge_to']
@@ -115,3 +119,10 @@ def simulation(request):
     }
     
     return JsonResponse(resp)
+
+def map_state(request):
+    session_id = request.session.session_key;
+
+    map_state = get_map_state_for(session_id);
+
+    return JsonResponse({'map_state': map_state});

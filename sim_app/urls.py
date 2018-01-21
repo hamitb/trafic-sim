@@ -6,4 +6,5 @@ urlpatterns = [
     path('', views.index, name='index'),
     path('settings/<str:component>/', views.settings, name='settings'),
     path('simulation/', views.simulation, name='simulation'),
+    path('map_state/', views.map_state, name='map_state'),
 ]

@@ -1,6 +1,20 @@
 // Settings AJAX
-fadeSpeed = 400;
+fadeSpeed = 200;
 
+// Get initial map data
+$.ajax({
+    type: 'GET',
+    url: '/map_state/',
+    success: function (data) {
+        if ('map_state' in data) {
+            drawMap(data.map_state);
+        }
+
+        console.log("Get initial map data");
+    }
+});
+
+// Form ajax
 $('#settings-container, #sim-container').find('form').on('submit', function (e) {
     e.preventDefault();
     var form = this;
@@ -15,7 +29,9 @@ $('#settings-container, #sim-container').find('form').on('submit', function (e) 
         url: form_action,
         data: form_data,
         success: function (data) {
-            console.log(data.map_state);
+            if ('map_state' in data) {
+                drawMap(data.map_state);
+            }
             stopWait(data.notification, data.result);
         }
     });
